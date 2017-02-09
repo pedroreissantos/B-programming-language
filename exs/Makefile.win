@@ -1,0 +1,38 @@
+# use gmake.exe
+EXT=.b
+.SUFFIXES: $(EXT) .asm .obj .exe
+PROG=blc
+NASM=nasm -fwin32
+LIBS=$(PROG).lib KERNEL32.LIB
+
+all: 1.exe 2.exe 3.exe 4.exe 5.exe ack.exe div.exe fib.exe gcd.exe tri.exe iter.exe recurs.exe powfunc.exe hello.exe histograma.exe fit.exe str.exe r.exe
+
+iter.exe: iter.obj fact.obj
+	$(LINK)
+
+recurs.exe: recurs.obj fact.obj
+	$(LINK)
+
+powfunc: powfunc.obj power.obj
+	$(LINK)
+
+fit.exe: fit.obj testfit.obj
+	$(LINK)
+
+bubble.exe: bubble.obj sort.obj fit.obj
+	$(LINK)
+
+cmp.exe: cmp.obj string.obj fit.obj
+	$(LINK)
+
+$(EXT).asm:
+	$(PROG) $< $@
+
+.asm.obj:
+	$(NASM) $<
+
+.obj.exe:
+	link /OUT:$@ $< $(LIBS)
+
+clean:
+	del /f *.asm *.obj *.exe

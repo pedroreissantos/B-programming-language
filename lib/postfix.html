@@ -1,0 +1,304 @@
+<!-- $Id: postfix.html,v 1.4 2004/12/09 17:24:33 prs Exp $ -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<HTML>
+<HEAD><TITLE> COMPILADORES 2004/2005 </TITLE>
+<META NAME="description" CONTENT="postfix">
+<META NAME="keywords" CONTENT="postfix">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+
+</HEAD>
+<BODY BGCOLOR="B5BDD6" link=red vlink=green>
+<table border="0" width="100%" cellpadding="5" cellspacing="3">
+  <tr align="left" valign="middle"><td>
+  <IMG ALIGN=left SRC="istlogo.gif" ALT="IST"> </td>
+
+  <TD> <CENTER> <H1>Projecto de Compiladores: <I><U>postfix</U></I></H1>
+  <H2>22 de Julho de 2004</H2>
+  <H3> Departamento de Engenharia Inform&aacute;tica</H3> <BR> <BR>
+
+</CENTER> </TD> </TABLE> <HR size=2 noshade> <BR>
+
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+
+<P>
+
+<H1><A NAME="SECTION1">
+1 - Generalidades</A>
+</H1>
+
+<P>
+Este documento descreve o processo de gera&ccedil;&atilde;o de c&oacute;digo
+m&aacute;quina a partir de uma m&aacute;quina de pilha, usando um conjunto
+de macros definidas em <A HREF="postfix.h">postfix.h</A>).
+<P>
+A gera&ccedil;&atilde;o de c&oacute;digo presup&otilde;e uma arquitectura
+baseada numa pilha com tr&ecirc;s registos (SL0):
+<UL>
+	<LI><B>IP (instruction pointer)</B>: indica a posi&ccedil;&atilde;o da
+		pr&oacute;xima instru&ccedil;&atilde;o a ser executada.
+	<LI><B>SP (stack pointer)</B>: indica a posi&ccedil;&atilde;o do
+		elemento situado no topo da pilha de dados.
+        <LI><B>FP (frame pointer)</B>: indica a posi&ccedil;&atilde;o do
+		in&iacute;cio do registo de activa&ccedil;&atilde;o da rotina em
+		execu&ccedil;&atilde;o.
+</UL>
+
+<H1><A NAME="SECTION1">
+2 - Interface</A>
+</H1>
+
+<P>
+Cada instru&ccedil;&atilde;o da m&aacute;quina de pilha (SL0) &eacute;
+convertida num conjunto de instru&ccedil;&otilde;es da m&aacute;quina de
+destino, neste caso <B>i386</B>.
+<P>
+Cada instru&ccedil;&atilde;o deve ser impressa utilizando a rotina
+<B>printf</B>, ou uma rotina equivalente como por exemplo <B>fprintf</B> ou
+<B>sprintf</B>, devendo ser fornecidos os argumentos adicionais do tipo
+correspondente, quando necess&aacute;rio.
+<P>
+Por exemplo, uma soma <B>pfADD</B> pressup&otilde;e as duas parcelas no
+topo da pilha, retirando-as da pilha, e deixando em seu lugar o resultado
+da opera&ccedil;&atilde;o. Assim, n&atilde;o &eacute; necess&aacute;rio
+passar argumentos &agrave; opera&ccedil;&atilde;o de soma bastando fazer
+<TT>printf(pfADD);</TT>.
+<P>
+Para colocar um valor inteiro na pilha torna-se necess&aacute;rio indicar
+a opera&ccedil;&atilde;o e o valor, ficando <TT>printf(pfIMM, valor)</TT>.
+Notar que a macro <B>pfIMM</B> cont&eacute;m um <B>%d</B> pelo que qualquer
+valor do tipo inteiro pode ser utilizado.
+<P>
+As diversas opera&ccedil;&otilde;es do processador de pilha (SL0) e as
+directivas de <I>assembler</I> s&atilde;o indicadas na tabela abaixo.
+Contudo, conv&eacute;m distinguir entre o efeito na pilha (o que a pilha deve
+conter antes da opera&ccedil;&atilde;o e o que deixa na pilha depois desta
+ter executado) e os argumentos da opera&ccedil;&atilde;o (os valores a
+serem fornecidos durante a execu&ccedil;&atilde;o da opera&ccedil;&atilde;o,
+ou seja, os <B>%d</B> e <B>%s</B> da macro usada). Notar que se forem passados
+menos argumentos que os necess&aacute;rios o <B>printf</B>, tal como em 
+qualquer outro caso, utiliza o <I>lixo</I> que existe na pilha/registos do
+programa.
+
+
+<H1><A NAME="SECTION1">
+3 - C&oacute;digos de opera&ccedil;&atilde;o postfix</A>
+</H1>
+
+
+<TABLE border>
+<TH>opcode		<TH>int<TH>char*<TH>efeito<TH>descri&ccedil;&atilde;o<TH><TD>
+<TR><TD>pfNIL 	<TD>   <TD>    <TD><TD>N&atilde;o faz nada
+<TR><TD>pfBEGIN	<TD>   <TD>file<TD><TD>Sequ&ecirc;ncia de in&iacute;cio
+<TR><TD>pfEND 	<TD>   <TD>    <TD><TD>Sequ&ecirc;ncia de fim
+<TR><TD>pfTEXT 	<TD>   <TD>    <TD><TD>Inicia o segmento de texto (c&oacute;digo)
+<TR><TD>pfRODATA 	<TD>   <TD>    <TD><TD>Inicia o segmento de dados constantes (iniciados)
+<TR><TD>pfDATA 	<TD>   <TD>    <TD><TD>Inicia o segmento de dados iniciados
+<TR><TD>pfBSS 	<TD>   <TD>    <TD><TD>Inicia o segmento de dados n&atilde;o iniciados
+<TR><TD>pfALIGN 	<TD>   <TD>    <TD><TD>Obriga ao alinhamento do c&oacute;digo ou dados
+<TR><TD>pfEXTRN 	<TD>   <TD>nome<TD><TD>Declara que o nome est&aacute; definido noutro m&oacute;dulo.
+<TR><TD>pfCOMMON 	<TD>   <TD>len<TD><TD>Declara que o nome &eacute; definido como <I>comum</I> a outros m&oacute;dulos. [*10*]
+<TR><TD>pfGLOBL 	<TD>tipo<TD>nome<TD><TD>Declara global o nome (a declara&ccedil;&atilde;o deve preceder a sua defini&ccedil;&atilde;o), o 2&ordm; argumento indica o tipo de s&iacute;mbolo: pfNONE - desconhecido, pfFUNC - fun&ccedil;&atilde;o, pfOBJ - dados
+<!--<TR><TD>pfFUNC	 	<TD>num<TD>    <TD><TD>Declara o n&uacute;mero de argumentos da rotina seguinte. Deve ser seguido do LABEL que inicia a rotina. -->
+<TR><TD>pfENDF	 	<TD>   <TD>nome<TD><TD>Declara o fim da rotina do nome indicado. É utilizado pelos assemblers para determinar a dimensão da rotina, em especial quando geram codigo PIC.
+<TR><TD>pfARGS	 	<TD>num<TD>    <TD><TD>Declara o n&uacute;mero de argumentos da chamada (ver pfCALL) seguinte.
+<TR><TD>pfSTR 	<TD>lbl<TD>str <TD><TD>Declara uma cadeia de caracteres 'str' est&aacute;tica (n&atilde;o pode conter caracteres especiais) [*1*]
+<TR><TD>pfCHAR 	<TD>   <TD>char<TD><TD>Declara um car&aacute;cter est&aacute;tico (usar <I>unsigned char</I> para imprimir caracteres n&atilde;o ASCII)
+<TR><TD>pfSHORT 	<TD>val<TD>    <TD><TD>Declara um valor inteiro de 16 bits est&aacute;tico
+<TR><TD>pfINTEGER 	<TD>val<TD>    <TD><TD>Declara um valor inteiro de 32 bits est&aacute;tico
+<TR><TD>pfLONG 	<TD>val<TD>    <TD><TD>Declara um valor inteiro de 64 bits est&aacute;tico
+<TR><TD>pfFLOAT 	<TD>   <TD>num <TD><TD>Declara um valor real em v&iacute;rgula flutuante de precis&atilde;o simples est&aacute;tico
+<TR><TD>pfDOUBLE 	<TD>   <TD>num <TD><TD>Declara um valor real em v&iacute;rgula flutuante de precis&atilde;o dupla est&aacute;tico
+<TR><TD>pfID 		<TD>nome<TD><TD><TD>Declara um nome, o endere&ccedil;o da entidade que refer, est&aacute;tico [*1*]
+<TR><TD>pfBYTE 	<TD>len<TD>    <TD><TD>Declara um vector n&atilde;o iniciado com comprimento <TT>len</TT>, em bytes.
+<TR><TD>pfIMM 	<TD>val<TD>    <TD>: val<TD>Empurra o valor inteiro para o topo da pilha (<I>immediate</I>)
+<TR><TD>pfADD 	<TD>   <TD>    <TD>b a : b+a<TD>Soma dois valores inteiros [*2*]
+<TR><TD>pfSUB 	<TD>   <TD>    <TD>b a : b-a<TD>Subtrai dois valores inteiros [*2*]
+<TR><TD>pfMUL 	<TD>   <TD>    <TD>b a : b*a<TD>Multiplica dois valores inteiros [*2*]
+<TR><TD>pfDIV 	<TD>   <TD>    <TD>b a : b/a<TD>Divide dois valores inteiros [*2*]
+<TR><TD>pfMOD 	<TD>   <TD>    <TD>b a : b%a<TD>Resto da divis&atilde;o de dois valores inteiros [*2*]
+<TR><TD>pfNEG 	<TD>   <TD>    <TD>a : -a<TD>Substitui o inteiro no topo da pilha pelo seu sim&eacute;trico
+<TR><TD>pfINCR 	<TD>val<TD>    <TD>a : a<TD>Incrementa de <B>val</B> unidades o valor indicado pelo endere&ccedil;o no topo da pilha
+<TR><TD>pfDECR 	<TD>val<TD>    <TD>a : a<TD>Decrementa de <B>val</B> unidades o valor indicado pelo endere&ccedil;o no topo da pilha
+<TR><TD>pfGT 		<TD>   <TD>    <TD>b a : b&gt;a<TD>Compara&ccedil;&atilde;o 'maior que' [*3*]
+<TR><TD>pfGE 		<TD>   <TD>    <TD>b a : b&gt;=a<TD>Compara&ccedil;&atilde;o 'maior ou igual' [*3*]
+<TR><TD>pfLT 		<TD>   <TD>    <TD>b a : b&lt;a<TD>Compara&ccedil;&atilde;o 'menor que' [*3*]
+<TR><TD>pfLE 		<TD>   <TD>    <TD>b a : b&lt;=a<TD>Compara&ccedil;&atilde;o 'menor ou igual' [*3*]
+<TR><TD>pfEQ 		<TD>   <TD>    <TD>b a : b==a<TD>Compara&ccedil;&atilde;o 'igual a' [*3*]
+<TR><TD>pfNE 		<TD>   <TD>    <TD>b a : b!=a<TD>Compara&ccedil;&atilde;o 'diferente de' [*3*]
+<TR><TD>pfAND 	<TD>   <TD>    <TD>b a : b&amp;a<TD>'E' l&oacute;gico bit a bit [*2*]
+<TR><TD>pfOR 		<TD>   <TD>    <TD>b a : b|a<TD>'OU' (inclusivo) l&oacute;gico bit a bit [*2*]
+<TR><TD>pfXOR 	<TD>   <TD>    <TD>b a : b^a<TD>'OU EXCLUSIVO' l&oacute;gico bit a bit [*2*]
+<TR><TD>pfNOT 	<TD>   <TD>    <TD>a : ~a<TD>Nega&ccedil;&atilde;o l&oacute;gica bit a bit (complemento para um) do topo da pilha
+<TR><TD>pfLOCAL 	<TD>val<TD>    <TD>: fp+val<TD>Coloca no topo da pilha o endere&ccedil;o da vari&aacute;vel local, com um deslocamento de 'val' bytes em rela&ccedil;&atilde;o ao frame pointer (args &gt;= 8; locais &lt;= -4; frame-pointer = 0, retorno = 4)[*4*]
+<TR><TD>pfADDR 	<TD>lbl<TD>nome<TD>: addr<TD>Coloca no topo da pilha o endere&ccedil;o do nome [*4*]
+<TR><TD>pfLOAD 	<TD>   <TD>    <TD>addr : [addr]<TD>Substitui o endere&ccedil;o no topo da pilha pelo respectivo valor de 4 bytes (rvalue)
+<TR><TD>pfLDCHR 	<TD>   <TD>    <TD>addr : [addr]<TD>Substitui o endere&ccedil;o no topo da pilha pelo respectivo valor de 1 byte (char)
+<TR><TD>pfLD16 	<TD>   <TD>    <TD>addr : [addr]<TD>Substitui o endere&ccedil;o no topo da pilha pelo respectivo valor de 2 bytes (short)
+<TR><TD>pfSTORE 	<TD>   <TD>    <TD>val addr :<TD>Armazena no endere&ccedil;o no topo da pilha o valor abaixo do topo
+<TR><TD>pfSTCHR 	<TD>   <TD>    <TD>val addr :<TD>Armazena no endere&ccedil;o no topo da pilha o valor de 1 byte abaixo do topo
+<TR><TD>pfST16 	<TD>   <TD>    <TD>val addr :<TD>Armazena no endere&ccedil;o no topo da pilha o valor de 2 bytes abaixo do topo
+<TR><TD>pfENTER 	<TD>val<TD>    <TD>: fp #val<TD>Inicia uma fun&ccedil;&atilde;o: guarda o registo de activa&ccedil;&atilde;o e reserva espa&ccedil;o para vari&aacute;veis locais (val bytes) [*6*]
+<TR><TD>pfSTART 	<TD>   <TD>    <TD>: fp<TD>Inicia uma fun&ccedil;&atilde;o sem vari&aacute;veis locais: guarda o registo de activa&ccedil;&atilde;o [*6*]
+<TR><TD>pfALLOC 	<TD>   <TD>    <TD>val : #val<TD>Reserva na pilha tantos bytes quantos o valor no topo desta. [*5*]
+<TR><TD>pfLEAVE 	<TD>   <TD>    <TD>fp ... :<TD>Termina a fun&ccedil;&atilde;o: repoe o registo de activa&ccedil;&atilde;o e liberta a pilha local. [*6*]
+<TR><TD>pfTRASH 	<TD>val<TD>    <TD>#val :<TD>Retira 'val' bytes da pilha [*6*]
+<TR><TD>pfLABEL 	<TD>   <TD>nome<TD><TD>Gera um label designado por nome.
+<TR><TD>pfCALL 	<TD>   <TD>name<TD>: ret<TD>Invoca uma fun&ccedil;&atilde;o por nome
+<TR><TD>pfRET 	<TD>   <TD>    <TD>ret :<TD>Retorno de uma fun&ccedil;&atilde;o.
+<TR><TD>pfRETN 	<TD>num<TD>    <TD>#num ret :<TD>Retorno de uma fun&ccedil;&atilde;o, retira 'num' bytes da pilha ap&oacute;s retirar o endere&ccedil;o de retorno.
+<TR><TD>pfJMP 	<TD>   <TD>name<TD>:<TD>Salto incondicional para o label designado por nome.
+<TR><TD>pfJZ 		<TD>   <TD>name<TD>val :<TD>Salto caso o topo da pilha seja zero para o label designado por nome.
+<TR><TD>pfJNZ 	<TD>   <TD>name<TD>val :<TD>Salto caso o topo da pilha n&atilde;o seja zero para o label designado por nome.
+<TR><TD>pfBRANCH 	<TD>   <TD>    <TD>addr : ret<TD>Invoca uma fun&ccedil;&atilde;o por endere&ccedil;o no topo da pilha
+<TR><TD>pfLEAP 	<TD>   <TD>    <TD>addr :<TD>Salto incondicional por endere&ccedil;o no topo da pilha
+<TR><TD>pfDUP 	<TD>   <TD>    <TD>a : a a<TD>Duplica o elemento no topo da pilha
+<TR><TD>pfPICK 	<TD>   <TD>    <TD>n : a@n<TD>Duplica para o topo da pilha o elemento a uma profundidade <B>n</B> do topo da pilha (PICK 0 = DUP)
+<TR><TD>pfSWAP 	<TD>   <TD>    <TD>a b : b a<TD>Troca a ordem dos dois elementos do topo da pilha
+<TR><TD>pfPUSH 	<TD>   <TD>    <TD>: a<TD>Empurar o resultado de um opera&ccedil;&atilde;o para o topo da pilha [*8*]
+<TR><TD>pfPOP 	<TD>   <TD>    <TD>a :<TD>Retirar um argumento do topo da pilha para certas opera&ccedil;&otilde;es [*8*]
+<TR><TD>pfROTL 	<TD>   <TD>    <TD>a b : a&gt;rotl&lt;b<TD>Rota&ccedil;&atilde;o o valor na segunda posi&ccedil;&atilde;o de tantos bits para a esquerda quantos o valor no topo [*9*]
+<TR><TD>pfROTR 	<TD>   <TD>    <TD>a b : a&gt;rotr&lt;b<TD>Rota&ccedil;&atilde;o o valor na segunda posi&ccedil;&atilde;o de tantos bits para a direita quantos o valor no topo [*9*]
+<TR><TD>pfSHTL 	<TD>   <TD>    <TD>a b : a&gt;&gt;b<TD>Deslocamento o valor na segunda posi&ccedil;&atilde;o de tantos bits para a esquerda quantos o valor no topo [*9*]
+<TR><TD>pfSHTRU 	<TD>   <TD>    <TD>a b : a&gt;&gt;b<TD>Deslocamento o valor na segunda posi&ccedil;&atilde;o de tantos bits para a direita sem sinal quantos o valor no topo [*9*]
+<TR><TD>pfSHTRS 	<TD>   <TD>    <TD>a b : a&gt;&gt;&gt;b<TD>Deslocamento do valor na segunda posi&ccedil;&atilde;o de tantos bits para a direita com sinal quantos o valor no topo [*9*]
+<TR><TD>pfSP 		<TD>   <TD>    <TD>: sp<TD>Colocar no topo da pilha o valor do indicador do topo da pilha  (<I>stack pointer</I>) 
+<TR><TD>pfI2D		<TD>   <TD>    <TD>i : d<TD>Converte o inteiro no topo da pilha pela representa&ccedil;&atilde;o em v&iacute;rgula flutuante em precis&atilde;o dupla
+<TR><TD>pfF2D		<TD>   <TD>    <TD>f : d<TD>Converte o n&uacute;mero em v&iacute;rgula flutuante em precis&atilde;o simples no topo da pilha pela representa&ccedil;&atilde;o em precis&atilde;o dupla
+<TR><TD>pfD2I		<TD>   <TD>    <TD>d : i<TD>Converte o n&uacute;mero em v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha pela representa&ccedil;&atilde;o inteira
+<TR><TD>pfD2F		<TD>   <TD>    <TD>d : f<TD>Converte o n&uacute;mero em v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha pela representa&ccedil;&atilde;o em precis&atilde;o simples
+<TR><TD>pfDADD	<TD>   <TD>    <TD>d1 d2 : d3<TD>Retira os dois n&uacute;meros em v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha e substitui-os pela sua soma
+<TR><TD>pfDSUB	<TD>   <TD>    <TD>d1 d2 : d3<TD>Retira os dois n&uacute;meros em v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha e substitui-os pela sua subtrac&ccedil;&atilde;o
+<TR><TD>pfDMUL	<TD>   <TD>    <TD>d1 d2 : d3<TD>Retira os dois n&uacute;meros em v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha e substitui-os pela sua multiplica&ccedil;&atilde;o
+<TR><TD>pfDDIV	<TD>   <TD>    <TD>d1 d2 : d3<TD>Retira os dois n&uacute;meros em v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha e substitui-os pela sua divis&atilde;o
+<TR><TD>pfDNEG	<TD>   <TD>    <TD>d1 d2 : d3<TD>Substitui o n&uacute;mero em v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha pelo seu sim&eacute;trico
+<TR><TD>pfDCMP		<TD>   <TD>    <TD>d1 d2 : i<TD>Compara os dois n&uacute;meros em v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha e substitui-os pelo inteiro (positivo, negativo ou nulo) [* 10 *]
+<TR><TD>pfDPUSH		<TD>   <TD>    <TD>: d<TD>Coloca o valor do registo de v&iacute;rgula flutuante em precis&atilde;o dupla no topo da pilha
+<TR><TD>pfDPOP		<TD>   <TD>    <TD>d :<TD>Move para o registo de v&iacute;rgula flutuante em precis&atilde;o dupla o valor no topo da pilha
+<TR><TD>pfLOAD2		<TD>   <TD>    <TD>a : d<TD>Substitui o endere&ccedil;o no topo da pilha pelo n&uacute;mero em v&iacute;rgula flutuante em precis&atilde;o dupla existente nesse endere&ccedil;o
+<TR><TD>pfSTORE2		<TD>   <TD>    <TD>d a :<TD>Guarda no endere&ccedil;o no topo da pilha o valor em v&iacute;rgula flutuante em precis&atilde;o dupla existente por baixo
+<TR><TD>pfDUP2                <TD>   <TD>    <TD>d : d d <TD>Duplica os dois
+elementos no topo da pilha (ou valor em v&iacute;rgula flutuante em
+precis&atilde;o dupla)
+<TR><TD>pfULDCHR 	<TD>   <TD>    <TD>addr : [addr]<TD>Substitui o endere&ccedil;o no topo da pilha pelo respectivo valor de 1 byte (car&aacute;cter), sem extens&atilde;o de sinal (unsigned)
+<TR><TD>pfULD16 	<TD>   <TD>    <TD>addr : [addr]<TD>Substitui o endere&ccedil;o no topo da pilha pelo respectivo valor de 2 bytes (short), sem extens&atilde;o de sinal (unsigned)
+<TR><TD>pfUDIV 	<TD>   <TD>    <TD>b a : b/a<TD>Divide dois valores naturais (unsigned) [*2*]
+<TR><TD>pfUMOD 	<TD>   <TD>    <TD>b a : b%a<TD>Resto da divis&atilde;o de dois valores naturais (unsigned) [*2*]
+<TR><TD>pfUGT 		<TD>   <TD>    <TD>b a : b&gt;a<TD>Compara&ccedil;&atilde;o 'maior que' para valores naturais (unsigned) [*3*]
+<TR><TD>pfUGE 		<TD>   <TD>    <TD>b a : b&gt;=a<TD>Compara&ccedil;&atilde;o 'maior ou igual' para valores naturais (unsigned) [*3*]
+<TR><TD>pfULT 		<TD>   <TD>    <TD>b a : b&lt;a<TD>Compara&ccedil;&atilde;o 'menor que' para valores naturais (unsigned) [*3*]
+<TR><TD>pfULE 		<TD>   <TD>    <TD>b a : b&lt;=a<TD>Compara&ccedil;&atilde;o 'menor ou igual' para valores naturais (unsigned) [*3*]
+<TR><TD>pfNOP		<TD>   <TD>    <TD>:<TD>Gera uma opera&ccedil;&atilde;o nula (consome tempo mas n&atilde;o altera o estado do processador)
+<TR><TD>pfLOCV 	<TD>val<TD>    <TD>: [fp+val]<TD>Coloca no topo da pilha o valor da vari&aacute;vel local [*7*]
+<TR><TD>pfADDRV 	<TD>lbl<TD>nome<TD>: [nome]<TD>Coloca no topo da pilha o valor do nome [*7*]
+<TR><TD>pfLOCA 	<TD>val<TD>    <TD>a :<TD>Atribui o topo da pilha ao endere&ccedil;o da vari&aacute;vel local [*7*]
+<TR><TD>pfADDRA 	<TD>lbl<TD>nome<TD>a :<TD>Atribui o topo da pilha ao endere&ccedil;o do nome [*7*]
+<TR><TD>pfJEQ 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (igualdade) se verificar[*7*]
+<TR><TD>pfJNEQ 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (desigualdade) se verificar[*7*]
+<TR><TD>pfJGT 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (maior que) se verificar[*7*]
+<TR><TD>pfJGE 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (maior ou igual) se verificar[*7*]
+<TR><TD>pfJLT 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (menor que) se verificar[*7*]
+<TR><TD>pfJLE 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (menor ou igual) se verificar[*7*]
+<TR><TD>pfJUGT 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (maior que, sem sinal) se verificar[*7*]
+<TR><TD>pfJUGE 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (maior ou igual, sem sinal) se verificar[*7*]
+<TR><TD>pfJULT 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (menor que, sem sinal) se verificar[*7*]
+<TR><TD>pfJULE 	<TD>lbl<TD>nome<TD>a b :<TD>Compara os dois valores no topo da pilha e salta para a etiqueta se a condi&ccedil;&atilde;o (menor ou igual, sem sinal) se verificar[*7*]
+</TABLE>
+
+
+<H1><A NAME="SECTION1">
+4 - Particularidades</A>
+</H1>
+
+<UL>
+<LI>
+[*0*] Na coluna <I>efeito</I> representa-se apenas o que acontece aos valores
+no topo da pilha, não aos restantes valores do programa.
+A notação <B>#len</B> representa tantos
+bytes na pilha quanto o valor de <B>len</B>, por exemplo,
+<B>a #8 b : a b</B> antes da operação <B>a</B> estava separado de <B>b</B>
+por <B>8</B> bytes (com <B>b</B> no topo da pilha) e depois da operação essa
+separação desaparece (<B>b</B> continua no topo da pilha).
+<LI>
+[*1*] Notar que os valores literais, por exemplo inteiros, podem ser utilizados
+na sua forma est&aacute;tica ocupando espa&ccedil;o na &aacute;rea de dados
+(ou de texto se for constante) com pfLIT. Por outro lado, apenas literais
+inteiros e ponteiros podem ser utilizados nas pr&oacute;prias
+instru&ccedil;&otilde;es como valores <I>immediate</I>
+(pfIMM, pfADDR, <I>etc</I>).
+<LI>
+[*2*] Conceptualmente os operadores bin&aacute;rios retiram os argumentos da
+pilha e colocam o l&aacute; o resultado, mesmo que as instru&ccedil;&otilde;es
+<B>i386</B> possam tirar partido das capacidades do processador, por forma a
+n&otilde;o serem muito lentas.
+<LI>
+[*3*] Compara&ccedil;&otilde;es s&atilde;o operadores bin&aacute;rios que
+colocam na pilha 0 (zero) ou 1 (um) consoante o resultado da compara&ccedil;&atilde;o seja <I>falso</I> ou <I>verdadeiro</I>, respectivamente.
+Este valor pode ser directamente utilizado para realizar saltos (JZ e JNZ),
+que retiram a condi&ccedil;&atilde;o de salto da pilha e n&atilde;o de
+registos especiais do processador (<I>flags</I>).
+<LI>
+[*4*] Estas opera&ccedil;&otilde;es colocam no topo da pilha o endere&ccedil;o
+do s&iacute;mbolo, independentemente da sua origem. O endere&ccedil;o pode
+posteriormente ser utilizado como ponteiro, obtido o valor nesse endere&ccedil;o
+ (pfLOAD) ou guardar um valor nesse endere&ccedil;o (pfSTORE).
+No entanto, nas duas &uacute;ltimas situa&ccedil;&otilde;es,
+devido &agrave; frequ&ecirc;ncia com que ocorrem e o n&uacute;mero
+de ciclos de rel&oacute;gio que levam a executar, podem ser substitu&iacute;das
+com vantagem pela opera&ccedil;&otilde;es descritas em [*10*].
+<LI>
+[*5*] A reserva din&acirc;mica na pilha,
+equivalente &agrave; rotina <TT>alloca</TT> da linguagem <B>C</B>,
+altera os deslocamentos das vari&aacute;veis tempor&aacute;rias existentes
+na pilha no momento da reserva, devendo ser utilizada quando n&atilde;o
+existem vari&aacute;veis tempor&aacute;rias na pilha ou quando em
+plena consci&ecirc;ncia das suas implica&ccedil;&otilde;es.
+<LI>
+[*6*] Numa m&aacute;quina de pilha, os argumentos de sequ&ecirc;ncia de
+chamada a uma rotina n&atilde;o necessitam de ser colocados na pilha pois
+j&aacute; l&aacute; se encontra (basta n&atilde;o os retirar).
+Numa chamada <I>&agrave; l&aacute; <B>C</B></I> (<TT><B>C</B> calling
+convetion</TT>), a rotina chamadora deve retirar esses mesmos argumentos
+ap&oacute;s o retorno da rotina atrav&eacute;s de um pfTRASH, em vez de
+retirar os argumentos da pilha um por um.
+A rotina chamada deve, de acordo com as instru&ccedil;&otilde;es postfix
+utilizadas, criar um registo de activa&ccedil;&atilde;o distinto com
+pfENTER e desfaz&ecirc;-lo imediatamente antes de retornar com um
+pfLEAVE.
+<LI>
+[*7*] Quick opcodes, que podendo ser gerado por outros, geram c&oacute;digo
+	mais simples e r&aacute;pido.
+<LI>
+[*8*] As ac&ccedil;&otilde;es de manipula&ccedil;&atilde;o da pilha
+est&atilde;o, em geral, impl&iacute;citas nas opera&ccedil;&otilde;es
+em postfix. Assim, a sua utiliza&ccedil;&atilde;o s&oacute; se torna
+necess&aacute;ria em ocasi&atilde;o muito particulares.
+<LI>
+[*9*] A opera&ccedil;&otilde;es de deslocamento e rota&ccedil;&atilde;o 
+t&ecirc;m como valor m&aacute;ximo o n&uacute;mero de bits do registo
+base do processador (32 no caso), n&atilde;o sendo garantido o resultado
+para valores superiores.
+<LI>
+[*9*] Numa declara&ccedil;&atilde;o comum a mais de um m&oacute;dulo, os outros
+m&oacute;dulos podem tamb&eacute;m conter declara&ccedil;&otilde;es comuns
+ou exteriores, mas pode haver (no m&aacute;ximo) uma declara&ccedil;&atilde;o
+iniciada. Como &eacute; uma declara&ccedil;&atilde;o n&atilde; necessiate ser
+colocada num segmento espec&iacute;fico.
+<LI>
+[*10*] Para efectuar uma compara&ccedil;&atilde;o entre reais em precis&tilde;o dupla, colocar os dois reais na pilha e fazer: DCMP, IMM 0; seguido da compara&ccedil;&atilde;o l&oacute;gica para inteiros (EQ, NE, LT, ...).
+
+</UL>
+<BR><HR>
+<ADDRESS>
+Pedro Reis Santos
+$Id: postfix.html,v 1.4 2004/12/09 17:24:33 prs Exp $
+</ADDRESS>
+</BODY>
+</HTML>

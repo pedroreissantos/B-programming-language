@@ -1,0 +1,9 @@
+.SUFFIXES: .obj .lib
+LIB=util
+CFLAGS=/Yd
+$(LIB).lib: node.obj tabid.obj main.obj
+	LIB /out:$@ $?
+.c.obj:
+	$(CC) $(CFLAGS) -c $<
+clean:
+	del /F /Q $(LIB).lib *.obj *.exe

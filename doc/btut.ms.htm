@@ -1,0 +1,1408 @@
+<html><head>
+<title>
+btut.ms
+</title></head>
+<body BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#330088" ALINK="#FF0044">
+<H1>A TUTORIAL INTRODUCTION<br> TO THE LANGUAGE B
+</H1>
+<DL><DD><I>B. W. Kernighan<br>
+Bell Laboratories<br>
+Murray Hill, New Jersey<br>
+</I></DL>
+<p>
+<H4>1. Introduction
+</H4>
+<p>
+B is a new computer language designed and implemented at Murray
+Hill.  It runs and is actively supported and documented on the
+H6070 TSS system at Murray Hill.
+<p>
+B is particularly suited for non-numeric computations, typified
+by system programming.  These usually involve many complex logical decisions, computations on integers and fields of words,
+especially characters and bit strings, and no floating point. B
+programs for such operations are substantially easier to write
+and understand than GMAP programs.  The generated code is quite
+good.  Implementation of simple TSS subsystems is an especially
+good use for B.
+<p>
+B is reminiscent of BCPL [2] , for those who can remember. The
+original design and implementation are the work of K. L. Thompson
+and D. M. Ritchie; their original 6070 version has been substantially improved by S. C. Johnson, who also wrote the runtime
+library.
+<p>
+This memo is a tutorial to make learning B as painless as possible.  Most of the features of the language are mentioned in passing, but only the most important are stressed.  Users who would
+like the full story should consult A User's Reference to B on
+MH-TSS, by S. C. Johnson [1], which should be read for details
+anyway.
+<p>
+We will assume that the user is familiar with the mysteries of
+TSS, such as creating files, text editing, and the like, and has
+programmed in some language before.
+<p>
+Throughout, the symbolism (-&#62;n) implies that a topic will be
+expanded upon in section n of this manual.  Appendix E is an
+index to the contents.
+<H4>2. General Layout of Programs
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+   main( ) {
+   -- statements --
+   }
+
+   newfunc(arg1, arg2) {
+   -- statements --
+   }
+
+   fun3(arg) {
+   -- more statements --
+   }
+</PRE></TT></DL>
+All B programs consist of one or more "functions", which are
+similar to the functions and subroutines of a Fortran program, or
+the procedures of PL/I.
+<TT>main</TT>
+is such a function, and in fact all
+B programs must have a
+<TT>main.</TT>
+Execution of the program begins at
+the first statement of
+<TT>main</TT>,
+and usually ends at the last.
+<TT>main</TT>
+will usually invoke other functions to perform its job, some coming from the same program, and others from libraries.  As in Fortran, one method of communicating data between functions is by
+arguments.  The parentheses following the function name surround
+the argument list; here
+<TT>main</TT>
+is a function of no arguments, indicated by ().
+The {} enclose the statements of the function.
+<p>
+Functions are totally independent as far as the compiler is concerned, and
+<TT>main</TT>
+need not be the first,
+although execution starts
+with it.  This program has two other functions:
+<TT>newfunc</TT>
+has two
+arguments, and
+<TT>fun3</TT>
+has one.  Each function consists of one or
+more statements which express operations on variables and
+transfer of control.  Functions may be used recursively at little
+cost in time or space (-&#62;30).
+<p>
+Most statements contain expressions, which in turn are made up of
+operators, names, and constants, with parentheses to alter the
+order of evaluation.  B has a particularly rich set of operators
+and expressions, and relatively few statement types.
+<p>
+The format of B programs is quite free; we will strive for a uniform style as a good programming practice.  Statements can be
+broken into more than one line at any reasonable point, i.e.,
+between names, operators, and constants.  Conversely, more than
+one statement can occur on one line.  Statements are separated by
+semicolons.  A group of statements may be grouped together and
+treated as a single statement by enclosing them in {}; in this
+case, no semicolon is used after the '}' .  This convention is
+used to lump together the statements of a function.
+<H4>3. Compiling and Running B Programs
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+   (a) SYSTEM? filsys cf bsource,b/1,100/
+   (b) SYSTEM? filsys cf bhs,b/6,6/,m/r/
+   (c) SYSTEM? [create source program with any text editor]
+   (d) SYSTEM? ./bj (w) bsource bhs
+   (e) SYSTEM? /bhs
+</PRE></TT></DL>
+(a) and (b) need only be done once; they create file space for
+the source program and the loaded program.  (d) compiles the
+source program from
+<TT>bsource</TT>,
+and after many machinations, creates a program in
+<TT>bhs</TT>.
+(e) runs that program. ./bj is more fully
+described in [1].
+<p>
+You may from time to time get error messages from the B compilers
+These look like either of
+<DL><DT><DD><TT><PRE>
+   ee n
+   ee name n
+</PRE></TT></DL>
+where ee is a two-character error message, and
+<TT>n</TT>
+is the approximate source line number of the error. (-&#62;Appendix A)
+<H4>4.  A Working B Program; Variables
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+main( ) {
+  auto a, b, c, sum;
+
+  a = 1; b = 2; c = 3;
+  sum = a+b+c;
+  putnumb(sum);
+}
+</PRE></TT></DL>
+This simple program adds three numbers, and prints the sum. It
+illustrates the use of variables and constants, declarations, a
+bit of arithmetic, and a function call.  Let us discuss them in
+reverse order.
+<p>
+<TT>putnumb</TT>
+is a library function of one argument, which will print a
+number on the terminal (unless some other destination is specified (-&#62;28)).
+The code for a version of
+<TT>putnumb</TT>
+can be found in
+(-&#62;30).  Notice that a function is invoked by naming it, followed
+by the argument(s) in parentheses. There is no CALL statement as
+in Fortran.
+<p>
+The arithmetic and the assignment statements are much the same as
+in Fortran, except for the semicolons.  Notice that we can put
+several on a line if we want.  Conversely, we can split a statement among lines if it seems desirable - the split may be between
+any of the operators or variables, but not in the middle of a
+variable name.
+<p>
+One major difference between B and Fortran is that B is a
+<TT>typeless</TT>
+language:  there is no analog in B of the Fortran IJKLMN
+convention.  Thus a,  b, c, and sum are all 36-bit quantities, and
+arithmetic operations are integer.  This is discussed at length
+in the next section (-&#62;5).
+<p>
+Variable names have one to eight ascii characters, chosen from
+A-Z, a-z, .,  _, 0-9, and start with a non-digit.  Stylistically,
+it's much better to use only a single case (upper or lower) and
+give functions and external variables (-&#62;7) names that are unique
+in the first six characters. ( Function and external variable
+names are used by batch GMAP, which is limited to six character
+single-case identifiers. )
+<p>
+The statement "auto ..." is a declaration, that is, it defines
+the variables to be used within the function.  auto in particular
+is used to declare local variables, variables which exist only
+within their own function
+(<TT>main</TT>
+in this case).  Variables may be
+distributed among auto declarations arbitrarily,
+but all declarations must precede executable statements.
+All variables must be
+declared, as one of auto, extrn (-&#62;7), or implicitly as function                     arguments (-&#62;8).
+<p>
+<TT>auto</TT>
+variables are different from Fortran local variables in one
+important respect - they appear when the function is entered, and
+disappear when it is left.  They cannot be initialized at compile
+time,  and they have no memory from one call to the next.
+<H4>5. Arithmetic; Octal Numbers
+</H4>
+<p>
+All arithmetic in B is integer, unless special functions are
+written.  There is no equivalent of the Fortran IJKLMN convention, no floating point, no data types, no type conversions, and
+no type checking.  Users of double-precision complex will have to
+fend for themselves. (But see -&#62;32 for how to call Fortran
+subroutines.)
+<p>
+The arithmetic operators are the usual '+', '-', '*', and '/'
+(integer division).  In addition we have the remainder operator
+'%':
+<DL><DT><DD><TT><PRE>
+   x = a%b
+</PRE></TT></DL>
+sets x to the remainder after a is divided by b (both of which
+should be positive).
+<p>
+Since B is often used for system programming and bit-manipulation, octal numbers are an important part of the
+language.  The syntax of B says that any number that begins with
+0 is an octal number (and hence can't have any 8's or 9's in it).
+Thus 0777 is an octal constant, with decimal value 511.
+<H4>6. Characters; putchar; Newline
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+main( ) {
+  auto a;
+  a= 'hi!';
+  putchar(a);
+  putchar('*n' );
+}
+</PRE></TT></DL>
+This program prints "hi!" on the terminal it illustrates the use
+of character constants and variables.   A "character" is one to
+four ascii characters,  enclosed in single quotes.   The characters
+are stored in a single machine word, right-justified and zero-filled.  We used a variable to hold  "hi!", but could have used a
+constant directly as well.
+<p>
+The sequence "*n" is B Jargon for "newline character", which,
+when printed, skips the terminal to the beginning of t:e next
+line.  No output occurs until putchar encounters a "*n"  or the
+program terminates.   Omission of the "*n",  a common error, causes
+all output to appear on one line, which is usually not the
+desired result.  There are several other escapes like "*n" for
+representing hard-to-get characters (-&#62;Appendix B).   Notice that
+"*n" is a single character: putchar('hi!*n') prints
+four characters (the maximum with a single call).
+<p>
+Since B is a typeless language, arithmetic on characters is quite
+legal, and even makes sense sometimes:
+<DL><DT><DD><TT><PRE>
+c = c+'A'-'a';
+</PRE></TT></DL>
+converts a single character stored in c to upper case (making use
+of the fact that corresponding ascii letters are a fixed distance
+apart).
+<H4>7. External Variables
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+main( ) {
+ extrn a, b, c;
+ putchar(a); putchar(b); putchar(c); putchar('!*n');
+}
+
+a 'hell';
+b 'o, w';
+c 'orld';
+</PRE></TT></DL>
+This example illustrates
+<TT>external variables</TT>,
+variables which are
+rather like Fortran COMMON, in that they exist external to all
+functions, and are (potentially) available to all functions.  Any
+function that wishes to access an external variable must contain
+an
+<TT>extrn</TT>
+declaration for it.  Furthermore, we must define all
+external variables outside any function%  For our example
+variables a, b, and c, this is done in the last three lines.
+<p>
+External storage is static, and always remains in existence, so
+it can be initialized. (Conversely,
+<TT>auto</TT>
+storage appears
+whenever the function is invoked, and disappears when the
+function is left.
+<TT>auto</TT>
+variables of the same name in different
+functions are unrelated. ) Initialization is done as shown: the
+initial value appears after the name, as a constant.   We have
+shown character constants; other forms are also possible.   External variables are initialized to zero if not set explicitly.
+<H4>8. Functions
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+main( ) {
+  extrn a,b,c,d;
+  put2char(a,b) ;
+  put2char(c,d) ;
+}
+
+put2char(x,y) {
+putchar(x);
+putchar(y);
+}
+
+a 'hell'; b 'o, w'; c 'orld'; d '!*n';
+</PRE></TT></DL>
+This example does the same thing as the last, but uses a separate
+(and quite artificial) function of two arguments,
+<TT>put2char</TT>.
+The
+dummy names x and y refer to the arguments throughout putchar;
+they are not declared in an auto statement.
+We could equally
+well have made a,b,c,d
+<TT>auto</TT>
+variables, or have called
+<TT>put2char</TT>
+as
+<DL><DT><DD><TT><PRE>
+put2char( 'hell','o, w');
+  etc.
+</PRE></TT></DL>
+Execution of
+<TT>put2char</TT>
+terminates when it runs into the closing '}',
+as in
+<TT>main</TT>;
+control returns to the next statement of
+the calling program.
+<H4>9. Input; getchar
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+main( ) {
+  auto c;
+  c= getchar();
+  putchar(c);
+}
+</PRE></TT></DL>
+<TT>getchar</TT>
+is another library IO function. It fetches one character
+from the input line each time it is called, and returns that
+character, right adjusted and zero filled, as the value of the
+function.  The actual
+implementation of
+<TT>getchar</TT>
+is to read an
+entire line, and then
+hand out the characters one at a time.
+After the '*n' at the
+end of the line has been returned, the next
+call to getchar will cause an entire new line to be read, and its
+first character returned.  Input is generally from the terminal (-&#62;28).
+<H4>10. Relational Operators
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+	== equal to (".EQ." to Fortraners)
+	!= not equal to
+	&#62; greater than
+	&#60; less than
+	&#62;= greater than or equal to
+	&#60;= less than or equal to
+</PRE></TT></DL>
+These are the relational operators; we will use '!=' ("not equal
+to) in the next example.  Don't forget that the equality test is
+'=='; using just one '='  leads to disaster of one sort or another. Note: all comparisons are arithmetic, not logical.
+<H4>11 if; goto; Labels; Comments
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+main( ) {
+  auto c;
+read:
+  c= getchar();
+  putchar(c);
+  if(c != '*n') goto read;
+}               /* loop if not a newline */
+</PRE></TT></DL>
+This function reads and writes one line.  It illustrates several
+new things.  First and easiest is the comment, which is anything
+enclosed in /*...*/, just as in PL/I.
+<p>
+<TT>read</TT>
+is a label - a name followed by a colon ':', also just as in
+PL/I.  A statement can have several labels if desired.  (Good
+programming practice dictates using few labels, so later examples
+will strive to get rid of them.) The goto references a label in
+the same function.
+<p>
+The
+<TT>if</TT>
+statement is one of four conditionals in B. (while (-&#62;14),
+switch (-&#62;26), and "?:"  (-&#62;16) are the others.) Its general form is
+<DL><DT><DD><TT><PRE>
+	if (expression) statement
+</PRE></TT></DL>
+The condition to be tested is any expression enclosed in
+parentheses.  It is followed by a statement.  The expression is
+evaluated, and if its value is non-zero, the statement is
+executed.  One of the nice things about B is that the statement
+can be made arbitrarily complex (although we've used very simple
+ones here) by enclosing simple statements in {} (-&#62;12)
+<H4>12. Compound Statements
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+      if(a&#60;b) {
+	t = a;
+	a = b;
+	b = t;
+      }
+</PRE></TT></DL>
+As a simple example of compound statements, suppose we want to
+ensure that a exceeds b, as part of a sort routine. The interchange of a and be takes three statements in B; they are grouped
+together by {} in the example above.
+<p>
+As a general rule in B, anywhere you can use a simple statement,
+you can use any compound statement, which is just a number of
+simple or compound ones enclosed in {}.  Compound statements are
+not followed by semicolons.
+<p>
+The ability to replace single statements by complex ones at will
+is one thing that makes B much more pleasant to use than Fortran.
+Logic which requires several GOTO's and labels in Fortran can be
+done in a simple clear natural way using the compound statements
+of B.
+<H4>13. Function Nesting
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+        read:
+           c = putchar(getchar());
+           if (c != '*n') goto read;
+</PRE></TT></DL>
+Functions which return values (as all do, potentially -&#62;24) can
+be used anywhere you might normally use an expression.   Thus we
+can use
+<TT>getchar</TT>
+as the argument of
+<TT>putchar</TT>,
+nesting the functions.
+<TT>getchar</TT>
+returns exactly the character that
+<TT>putchar</TT>
+needs
+as an argument.
+<TT>putchar</TT>
+also passes its argument back as a
+value, so we assign this to c for later reference.
+<p>
+Even better,  if c won't be needed later, we can say
+<DL><DT><DD><TT><PRE>
+         read:
+          if (putchar(getchar()) != '*n') goto read;
+</PRE></TT></DL>
+<H4>14. While statement; Assignment within an Expression
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+     while ((c=getchar()) != '*n') putchar(c);
+</PRE></TT></DL>
+Avoiding
+is<TT>goto</TT>'s
+This<TT>goto</TT>'s.
+the previous one. (The difference? This one doesn't print the
+terminating '*n'.) The
+<TT>while</TT>
+statement is basically a loop statement, whose general form is
+<DL><DT><DD><TT><PRE>
+   while (expression) statement
+</PRE></TT></DL>
+As in the
+<TT>if</TT>
+statement, the expression and the statement can both
+be arbitrarily complicated, although we haven't seen that yet.
+The action of while is
+<DL><DT><DD><TT><PRE>
+    (a) evaluate the expression
+    (b) if its value is true (i. e., not zero), do the
+        statement and return to (a)
+</PRE></TT></DL>
+Our example gets the character and assigns it to c, and tests to
+see if it's a '*n'.  If it isn't, it does the statement part of
+the
+<TT>while</TT>,
+a
+<TT>putchar</TT>,
+and then repeats.
+<p>
+Notice that we used an assignment statement "c=getchar()'" within
+an expression.  This is a handy notational shortcut, usually produces better code, and is sometimes necessary if a statement is
+to be compressed.  This works because an assignment statement has
+a value, just as any other expression does.  This also implies
+that we can successfully use multiple assignments like
+<DL><DT><DD><TT><PRE>
+  x = y = f(a)+g(b)
+</PRE></TT></DL>
+As an aside, the extra pair of parentheses in the assignment
+statement within the conditional were really necessary: if we had
+said
+<DL><DT><DD><TT><PRE>
+  c = getchar() != '*n'
+</PRE></TT></DL>
+c would be set to 0 or 1 depending on whether the character
+fetched was a newline or not.  This is because the binding
+strength of the assignment operator '=' is lower than the relational operator '!='.  (-&#62; Appendix D)
+<H4>15. More on Whiles; Null Statement; exit
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+main( ) {
+  auto c;
+  while (1) {
+    while ( (c=getchar()) != ' ')
+      if (putchar(c) == '*n') exit();
+    putchar( '*n' );
+    while ( (c=getchar()) == ' '); /* skip blanks */
+    if (putchar(c)=='*n') exit(); /* done when newline */
+    }
+}
+</PRE></TT></DL>
+This terse example reads one line from the terminal, and prints
+each non-blank string of characters on a separate line: one or
+more blanks are converted into a single newline.
+<p>
+Line four fetches a character, and if it is non-blank, prints it,
+and uses the library function
+<TT>exit</TT>
+to terminate execution if it's
+a newline.  Note the use of the assignment within an expression
+to save the value of c.
+<p>
+Line seven skips over multiple blanks.  It fetches a character,
+and if it's blank, does the statement ';'.  This is called a null
+statement - it really does nothing.  Line seven is just a very
+tight loop, with all the work done in the expression part of the
+while clause.
+<p>
+The slightly odd-looking construction
+<DL><DT><DD><TT><PRE>
+  while(1){
+    ---
+  }
+</PRE></TT></DL>
+is a way to get an infinite loop.  "1" is always non-zero; so the
+statement part (compound here!) will always be done.  The only
+way to get out of the loop is to execute a goto (-&#62;11) or break
+(-&#62;26), or return from the function with a
+<TT>return</TT>
+statement
+(-&#62;24), or terminate execution by
+<TT>exit</TT>.
+<H4>16. Else Clause; Conditional expressions
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+      if (expression) statement else statement2
+</PRE></TT></DL>
+is the most general form of the
+<TT>if</TT>
+- the
+<TT>else</TT>
+part is sometimes
+useful.  The canonical example sets x to the minimum of a and b:
+<DL><DT><DD><TT><PRE>
+      if (a&#60;b) x=a; else x=b;
+</PRE></TT></DL>
+If's and else's can be used to construct logic that branches one
+of several ways, and then rejoins, a common programming structure, in this way:
+<DL><DT><DD><TT><PRE>
+      if(---)
+        { -----
+          ----- }
+       else if(---)
+        { -----
+          ----- }
+       else if(----)
+        { -----
+          ----- }
+</PRE></TT></DL>
+etc.
+<p>
+The conditions are tested in order, and exactly one block is executed - the first one whose if is satisfied.  When this block is
+finished, the next statement executed is the one after the last
+"else if" block.
+<p>
+B provides an alternate form of conditional which is often more
+concise and efficient.   It is called the "conditional expression"
+because it is a conditional which actually has a value and can be
+used anywhere an expression can.  The last example can best be
+expressed as
+<DL><DT><DD><TT><PRE>
+ x = a&#60;b ? a : b;
+</PRE></TT></DL>
+The meaning is: evaluate the expression to the left of '?'. If it
+is true, evaluate the expression between '?' and ':' and assign
+that value to x.  If it's false, evaluate the expression to the
+right of ':' and assign its value to x.
+<H4>17. Unary Operators
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+  auto k;
+  k = 0;
+  while (getchar() != '*n') ++k;
+</PRE></TT></DL>
+B has several interesting unary operators in addition to the
+traditional '-'.  The program above uses the increment operator
+'++' to count the number of characters in an input line.  "++k"
+is equivalent to "k=k+1" but generates better code.  '++' man
+also be used after a variable, as in
+<DL><DT><DD><TT><PRE>
+          k++
+</PRE></TT></DL>
+The only difference is this. suppose k is 5. Then
+<DL><DT><DD><TT><PRE>
+            x = ++k
+</PRE></TT></DL>
+sets k to 6 and then sets x to k, i.e., to 6.  But
+<DL><DT><DD><TT><PRE>
+             x = k++
+</PRE></TT></DL>
+sets x to 5, and then k to 6.
+<p>
+Similarly, the unary decrement operator '--' can be used either
+before or after a variable to decrement by one.
+<H4>18. Bit Operators
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+   c = o;
+   i = 36;
+   while ((i = i-9) &#62;= 0) c = c | getchar()&#60;&#60;i;
+</PRE></TT></DL>
+B has several operators for logical bit-manipulation.  The example above illustrates two, the OR '|' , and the left shift &#60;&#60;.
+This code packs the next four 9-bit characters from the input
+into the single 36-bit word c, by successively left-shifting the
+character by i bit positions to the correct position and OR-ing
+it into the word.
+<p>
+The other logical operators are AND '&amp;', logical right shift
+'&#62;&#62;',  exclusive OR '^', and 1's complement '~'.
+<DL><DT><DD><TT><PRE>
+  x = ~y&amp;0777
+</PRE></TT></DL>
+sets x to the last 9 bits of the 1's complement of y, and
+<DL><DT><DD><TT><PRE>
+ x = x&amp;077
+</PRE></TT></DL>
+replaces x by its last six bits.
+<p>
+The order of evaluation of unparenthesized expressions is determined by the relative binding strengths of the operators involved
+(-&#62; Appendix D).
+<H4>19. Assignment operators
+</H4>
+<p>
+An unusual feature of B is that the normal binary operators like
+'+', '-',  etc. can be combined with the assignment operator =
+to form new assignment operators.  For example,
+<DL><DT><DD><TT><PRE>
+  x =- 10
+</PRE></TT></DL>
+means "x=x-10". '=-'  is an assignment operator.   This convention
+is a useful notational shorthand, and usually makes it possible
+for B to generate better code.  But the spaces around the operator are critical! For instance,
+<DL><DT><DD><TT><PRE>
+  x = -10
+</PRE></TT></DL>
+sets x to -10, while
+<DL><DT><DD><TT><PRE>
+  x =- 10
+</PRE></TT></DL>
+subtracts 10 from x.  When no space is present,
+<DL><DT><DD><TT><PRE>
+  x=-10
+</PRE></TT></DL>
+also decreases x by 10.  This is quite contrary to the experience
+of most programmers.
+<p>
+Because assignment operators have lower binding strength than any
+other operator, the order of evaluation should be watched
+carefully:
+<DL><DT><DD><TT><PRE>
+  x = x&#60;&#60;y|z
+</PRE></TT></DL>
+means "shift x left y places, then OR in z, and store in x".   But
+<DL><DT><DD><TT><PRE>
+  x =&#60;&#60; y|z
+</PRE></TT></DL>
+means "shift x left by y|z places", which is rather different.
+<p>
+The character-packing example can now be written better as
+<DL><DT><DD><TT><PRE>
+  c= 0;
+  i = 36;
+  while ((i =- 9) &#62;= 0) c =| getchar()&#60;&#60;i;
+</PRE></TT></DL>
+<H4>20. Vectors
+</H4>
+<p>
+A vector is a set of consecutive words, somewhat like a one-dimensional array in Fortran.   The declaration
+<DL><DT><DD><TT><PRE>
+  auto v[10];
+</PRE></TT></DL>
+allocates 11 consecutive words? v[0], v[1], ...,  v[10] for v.
+Reference to the i-th element is made by v[i] ; the [] brackets
+indicate subscripting.  (There is no Fortran-like ambiguity
+between subscripts and function call.)
+<DL><DT><DD><TT><PRE>
+  sum = o;
+  i = 0;
+  while (i&#60;=n) sum =+ V[i++];
+</PRE></TT></DL>
+This code sums the elements of the vector v. Notice the increment
+within the subscript - this is common usage in B.  Similarly, to
+find the first zero element of v,
+<DL><DT><DD><TT><PRE>
+  i = -1;
+  while (v[++i]);
+</PRE></TT></DL>
+<H4>21. External Vectors
+</H4>
+<p>
+Vectors can of course be external variables rather than
+<TT>auto</TT>.
+We declare v external within the function (don't mention a size) by
+<DL><DT><DD><TT><PRE>
+  extrn v;
+</PRE></TT></DL>
+and then outside all functions write
+<DL><DT><DD><TT><PRE>
+  v[10];
+</PRE></TT></DL>
+External vectors may be initialized just as external simple
+variables:
+<DL><DT><DD><TT><PRE>
+  v[10]  'hi!', 1, 2, 3, 0777;
+</PRE></TT></DL>
+sets v[0] to the character constant 'hi!', and V[1] through v[4]
+to various numbers.  v[5] through v[10] are not initialized.
+<H4>22. Addressing
+</H4>
+<p>
+To understand all the ramifications of vectors, a digression into
+addressing is necessary.  The actual implementation of a vector
+consists of a word v which contains in its right half the address
+of the 0-th word of the vector; i.e., v is really a pointer to
+the actual vector.
+<p>
+This implementation can lead to a fine trap for the unwary. If
+we say
+<DL><DT><DD><TT><PRE>
+  auto u[10], v[10];
+  ---
+  u = v;
+  v[0] = ...
+  v[1] = ...
+  ---
+</PRE></TT></DL>
+the unsuspecting might believe that u[0] and u[1] contain the old
+values of v[0] and v[1]; in fact, since u is just a pointer to
+v[0] , u actually refers to the new content.  The statement "u=v"
+does not cause any copy of information into the elements of u;
+they may indeed be lost because u no longer points to them.
+<p>
+The fact that vector elements are referenced by a pointer to the
+zeroeth entry makes subscripting trivial - the address of v[i] is
+simply v+i.  Furthermore, constructs like v[i][j] are quite
+legal: v[i] is simply a pointer to a vector, and v[i][j] is its
+j-th entry.  You have to set up your own storage, though.
+<p>
+To facilitate manipulation of addresses when it seems advisable,
+B provides two unary ad~ress operators, '*' and '&amp;'. '&amp;' is the
+address operator so &amp;x is the address of x, assuming it has
+one.  '*' is the indirection operator; "*x"  means "use the content of x as an address."
+<p>
+Subscripting operations can now be expressed differently:
+<DL><DT><DD><TT><PRE>
+  x[0]  is equivalent to *x
+  x[1]  is equivalent to *(x+1)
+  &amp;x[0] is equivalent to x
+</PRE></TT></DL>
+<H4>23. Strings
+</H4>
+<p>
+A string in B is in essence a vector of characters. It is written as
+<DL><DT><DD><TT><PRE>
+  "this is a string"
+</PRE></TT></DL>
+and, in internal representation, is a vector with characters
+packed four to a word, left justified, and terminated by a mysterious character known as '*e' (ascii EOT).  Thus the string
+<DL><DT><DD><TT><PRE>
+  "hello"
+</PRE></TT></DL>
+has six characters, the last of which is '*e'. Characters are
+numbered from zero.  Notice the difference between strings and
+character constants.  Strings are double-quoted, and have zero or
+more characters; they are left justified and terminated by an
+explicit delimiter, '*e'.  Character constants are single-quoted,
+have from one to four characters,  and are right justified and
+zero-filled.
+<p>
+Some characters can only be put into strings by "escape sequences" (-&#62; Appendix B ).  For instance, to get a double quote
+into a string, use '*"', as in
+<DL><DT><DD><TT><PRE>
+  "He said, *"Let's go.*""
+</PRE></TT></DL>
+External variables may be initialized to string values simply by
+following their names by strings, exactly as for other constants.
+These definitions initialize a, b, and three elements of v:
+<DL><DT><DD><TT><PRE>
+   a "hello"; b "world'*;
+   v[2] "now is the time", "for all good men",
+       "to come to the aid of the party";
+</PRE></TT></DL>
+B provides several library functions for manipulating strings and
+accessing characters within them in a relatively machine-independent way.
+These are all discussed in more detail in section 8.2 of [1].  The two most commonly used are
+<TT>char</TT>
+and
+<TT>lchar</TT>.
+char(s,n) returns the n-th character of s, right justified and
+zero-filled.  lchar(s,n,c) replaces the n-th character of s by c,
+and returns c.  (The code for
+<TT>char</TT>
+is given in the next section.)
+<p>
+Because strings are vectors, writing "s1=s2" does not copy the
+characters in s2 into s1, but merely makes s1 point to s2. To
+copy s2 into s1, we can use char and lchar in a function like
+<TT>strcopy</TT>:
+<DL><DT><DD><TT><PRE>
+   strcopy(sl ,s2){
+   auto i;
+   i = 0;
+   while (lchar(sl,i,char(s2,i)) != '*e') i++;
+  }
+</PRE></TT></DL>
+<H4>24. Return statement
+</H4>
+<p>
+How do we arrange that a function like char returns a value to
+its caller? Here is
+<TT>char</TT>:
+<DL><DT><DD><TT><PRE>
+   char(s, n){
+     auto y,sh,cpos;
+     y = s[n/4];        /* word containing n-th char */
+     cpos = n%4;        /* position of char in word */
+     sh = 27-9*cpos;    /* bit positions to shift */
+     y =  (y&#62;&#62;sh)&amp;0777; /* shift and mask all but 9 bits */
+     return(y);         /* return character to caller */
+   }
+</PRE></TT></DL>
+A
+<TT>return</TT>
+in a function causes an immediate return to the calling
+program.  If the
+<TT>return</TT>
+is followed by an expression in
+parentheses, this expression is evaluated, and the value returned
+to the caller.  The expression can be arbitrarily complex, of
+course:
+<TT>char</TT>
+is actually defined as
+<DL><DT><DD><TT><PRE>
+   char(s,n) return((s[n/4]&#62;&#62;(27-9*(n%4)))&amp;0777);
+</PRE></TT></DL>
+Notice that char is written without {}, because it can be expressed as a simple statement.
+<H4>25. Other String Functions
+</H4>
+<p>
+concat(s,al,a2,...,a10) concatenates the zero or more strings ai
+into one big string s, and returns s (which means a pointer to
+S[0]).  s must be declared big enough to hold the result
+(including the terminating '*e').
+<p>
+getstr(s) fetches the entire next line from the input unit into
+s, replacing the terminating '*n' by '*e'.  In B, it is
+<DL><DT><DD><TT><PRE>
+   getstr(s){
+   auto c,i;
+   while ((c=getchar()) != '*n') lchar(s,i++,c);
+   lchar(s,i,'*e');
+   return(s) ;
+   }
+</PRE></TT></DL>
+Similarly putstr(s) puts the string s onto the output unit,
+except for the final '*e'. Thus
+<DL><DT><DD><TT><PRE>
+   auto s[20] ;
+   putstr(getstr(s)); putchar('*n');
+</PRE></TT></DL>
+copies an input line to the output.
+<H4>26. Switch statement; break
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+     loop:
+       switch (c=getchar()){
+
+        pr:
+              case 'p':  /* print */
+              case 'P':
+                print();
+                goto loop;
+
+              case 's':  /* subs */
+              case 'S':
+                subs() ;
+                goto pr;
+
+              case 'd':  /* delete */
+              case 'D':
+                delete();
+                goto loop;
+
+              case '*n': /* quit on newline */
+                break;
+
+              default:
+                error();  /* error if fall out */
+                goto loop;
+
+        }
+</PRE></TT></DL>
+This fragment of a text-editor program illustrates the
+<TT>switch</TT>
+statement, which is a multi-way branch.
+Here, the branch is controlled by a character read into c.  If c is 'p' or 'P', function
+<TT>print</TT>
+is invoked.  If c is an 's' or 'S',
+<TT>subs</TT>
+and
+<TT>print</TT>
+are both
+invoked.  Similar actions take place for other values.
+If c does
+not mention any of the values mentioned in the case statements,
+the default statement (in this case, an error function) is invoked.
+<p>
+The general form of a switch is
+<DL><DT><DD><TT><PRE>
+      switch (expression) statement
+</PRE></TT></DL>
+The statement is always complex,  and contains statements of the
+form
+<DL><DT><DD><TT><PRE>
+         case constant:
+</PRE></TT></DL>
+The constants in our example are characters, but they could also
+be numbers.  The expression is evaluated, and its value matched
+against the possible cases.  If a match is found, execution continues at that case.  (Execution may of course fall through from
+one case to the next, and may transfer around within the switch,
+or transfer outside it.) Notice we put multiple cases on several
+statements.
+<p>
+If no match is found, execution continues at the statement labeled
+<TT>default:</TT>
+if it exists; if there is no match and no
+<TT>default</TT>,
+the entire statement part of the switch is skipped.
+<p>
+The
+<TT>break</TT>
+statement forces an immediate transfer to the next
+statement after the switch statement, i.e., the statement after
+the {} which enclose the statement part of the
+<TT>switch</TT>.
+<TT>break</TT>
+may also be used in while statements in an analogous manner.
+<TT>break</TT>
+is a useful way to avoid useless labels.
+<H4>27. Formatted IO
+</H4>
+<p>
+In this section, we point to the function
+<TT>printf</TT>,
+which is used
+for producing formatted IO.
+This function is so useful that it
+is actually placed in Appendix C for ready reference.
+<H4>28. Lots More on IO
+</H4>
+<p>
+File IO is described in much more detail in [1], section 8.   This
+discussion does only the easy things.
+<p>
+Basically, all IO in B is character-oriented, and based on
+getchar and putchar.  By default, these functions refer to the
+terminal, and IO goes there unless explicit steps are taken to
+divert it.  The diversion is easy and systematic, so IO unit
+switching is quite feasible.
+<p>
+At any time there is one input unit and one output unit;
+<TT>getchar</TT>
+and
+<TT>putchar</TT>
+use these for their input and output by implication.
+The unit is a number between -1 and 10 (rather like Fortran file
+numbers).  The current values are stored in the external variables
+<TT>rd.unit</TT>
+and
+<TT>wr.unit</TT>
+so they can be changed easily, although
+most programs need not use them directly. When execution of a B
+program begins,
+<TT>rd.unit</TT>
+is 0, which means "read from terminal",
+and
+<TT>wr.unit</TT>
+is -1, meaning "write on terminal".
+<p>
+To do input from a file, we set
+<TT>rd.unit</TT>
+to a value, and assign a
+file name to that unit.  Then, until the assignment or the value
+is changed,
+<TT>getchar</TT>
+reads its characters from that file.  Thus,
+to open for reading an ascii permanent file called "cat/file", as
+input unit 5,
+<DL><DT><DD><TT><PRE>
+   openr(5, "cat/file")
+</PRE></TT></DL>
+The first argument is the unit number, and the second is a
+cat/file description.  (An empty string means the terminal.)
+<TT>rd.unit</TT>
+is set to 5 by
+<TT>openr</TT>
+so successive calls to
+<TT>getchar</TT>,
+<TT>getstr</TT>,
+etc., will fetch characters from this file.  If the file
+is non-existent or if we read to end of file, all successive
+calls produce '*e'.
+<p>
+Writing is much the same:
+<DL><DT><DD><TT><PRE>
+   openw(u,s)
+</PRE></TT></DL>
+opens ascii file s as unit u for writing.  Successive calls to
+<TT>putchar</TT>,
+<TT>putstr</TT>,
+<TT>printf</TT>,
+etc., will place output on file s.
+<p>
+If the IO unit mentioned in
+<TT>openr</TT>
+or
+<TT>openw</TT>
+is already open, it is
+closed before the next use.  That is, any output for output files
+is flushed and end of file written;  any input from input files is
+thrown away.  Files are also closed this way upon normal termination.
+<p>
+Programs which have only one input and one output unit open
+simultaneously need not reference
+<TT>rd.unit</TT>
+and
+<TT>wr.unit</TT>
+explicitly,
+since the opening routines will do It automatically.  Otherwise,
+don't forget to declare them in an
+<TT>extrn</TT>
+statement.
+<p>
+The function
+<TT>flush</TT>
+closes the current output unit without writing
+a terminating newline character.  If this file is the terminal,
+this is the way to force a prompting question before reading a
+response on the same line:
+<DL><DT><DD><TT><PRE>
+   putstr("old or new?");
+   flush();
+   getstr(s);
+</PRE></TT></DL>
+prints
+<DL><DT><DD><TT><PRE>
+         old or new?
+</PRE></TT></DL>
+and reads the response from the same line.
+<p>
+File names may only be "cat/file", "/file", or "file": no permissions, passwords subcatalogs or alternate names are allowed.
+File names containing a '/' are assumed to be permanent files; if
+you try to open a permanent file which is already accessed, it is
+released and reaccessed.  If it can't be found, the access fails.
+A file name without '/' may or may not be a permanent file, so if
+a file of this name is already accessed,  it is used without question.  If it is not already accessed, a search of the user's
+catalog is made for it.  If it can't be found there either, and
+writing is desired, a temporary file is made.
+<p>
+The function
+<TT>reread</TT>
+is used to re-read a line.  Its primary function is that if it is called before the first call to
+<TT>getchar</TT>,
+it
+retrieves the command line with which the program was called.
+<DL><DT><DD><TT><PRE>
+   reread();
+   getstr(s);
+</PRE></TT></DL>
+fetches the command line, and puts it into string s.
+<H4>29. System Call from TSS
+</H4>
+<p>
+TSS users can easily execute other TSS subsystems from within a
+running B program, by using the
+library function
+<TT>system</TT>.
+For
+instance,
+<DL><DT><DD><TT><PRE>
+   system("./rj (w) ident;file");
+</PRE></TT></DL>
+acts exactly as if we had typed
+<DL><DT><DD><TT><PRE>
+   ./rj (w) ident;file
+</PRE></TT></DL>
+in response to "SYSTEM?".  The argument of
+<TT>system</TT>
+is a string,
+which is executed as if typed at "SYSTEM?" level. (No '*n' is
+needed at the end of the string.)  Return is to the B program
+unless disaster strikes.  This feature permits B programs to use
+TSS subsystems and other programs to do major functions without
+bookkeeping or core overhead.
+<p>
+We can also use
+<TT>printf</TT>
+(-&#62;Appendix C) to write on the
+"system" IO
+unit, which is predefined as -1.  All output written on unit -1
+acts as if typed at "SYSTEM?" level.  Thus,
+<DL><DT><DD><TT><PRE>
+   extrn wr.unit;
+   ---
+   wr.unit = -1;
+   opts = "(w)";
+   fname = "file";
+   printf("./rj %s ident;%s*n", opts,fname');
+</PRE></TT></DL>
+will set the current output unit to -1, the system, and then
+print on it using
+<TT>printf</TT>
+to format the string.  This example does
+the same thing as the last, but the RUNJOB options and the file
+names are
+variables, which can be changed as desired.   Notice that
+this time a '*n'  is necessary to terminate the line.
+<p>
+Because of serious design failings in TSS, there is generally no
+decent way to send more than the command line as input to a program called this way, and no way to retrieve output from it.
+<H4>30. Recursion
+</H4>
+<p>
+<DL><DT><DD><TT><PRE>
+   putnumb(n) {
+     auto a;
+     if(a=n/10)   /* assignment, not equality test */
+        putnumb(a);  /* recursive */
+        putchar(n%10 + '0');
+    }
+</PRE></TT></DL>
+This simplified version of the library function
+<TT>putnum</TT>
+illustrates the use of recursion. (It only works for n&#62;0.) "a" is set
+to the quotient of n/10; if this is non-zero, a recursive call on
+putnumb is made to print the quotient.  Eventually the high-order
+digit of n will be printed, and then as each invocation
+of putnumb is popped up,
+the next digit will be added on.
+<H4>31. Argument Passing for Functions
+</H4>
+<p>
+There is a subtlety in function usage which can trap the unsuspecting Fortran programmer.  Argument passing is call by
+value", which means that the called function is given the actual
+values of its arguments, and doesn't know their addresses. This
+makes it very hard to change the value of one of the input
+arguments!
+<p>
+For instance,
+consider a function flip(x,y) which is to interchange its arguments.
+We might naively write
+<DL><DT><DD><TT><PRE>
+      flip(x,y){
+         auto t;
+         t = x;
+         x = y;
+         y = t;
+       }
+</PRE></TT></DL>
+but this has no effect at all.
+(Non-believers: try it!) What we
+have to do is pass the arguments as explicit addresses, and use
+them as addresses.
+Thus we invoke
+<TT>flip</TT>
+as
+<DL><DT><DD><TT><PRE>
+   flip(&amp;a,&amp;b);
+</PRE></TT></DL>
+and the definition of flip is
+<DL><DT><DD><TT><PRE>
+   flip(x,y){
+   auto t;
+    t = *y;
+    *x = *y;
+    *y = t;
+    }
+</PRE></TT></DL>
+(And don't leave out the spaces on the right of the equal signs.)
+This problem doesn't arise if the arguments are vectors, since a
+vector is represented by its address.
+<H4>32. Calling Fortran and GMAP Subroutines from B Programs
+</H4>
+<p>
+As we mentioned, B doesn't have floating
+point, multi-dimensional arrays,
+and similar things that Fortran does better.  A B program,
+<TT>callf</TT>,
+ allows B programs to call Fortran and GMAP
+subroutines, like this:
+<DL><DT><DD><TT><PRE>
+   callf(name, a1,a2, . . .,a10)
+</PRE></TT></DL>
+Here
+<TT>name</TT>
+is the Fortran function or subroutine to be used, and
+the a's are the zero or more arguments of the subroutine.
+<p>
+There are some restrictions on
+<TT>callf</TT>,
+related to the "call by
+value" problem mentioned above.  First, variables that are not
+vectors or strings must be referenced by address: use "&amp;x" instead of "x" as an argument.  Second, no constants are allowed
+among the arguments,  because the construction "&amp;constant" is
+illegal in B.  We can't say
+<DL><DT><DD><TT><PRE>
+   tod = callf(itimez,&amp;0)
+</PRE></TT></DL>
+to get the time of day; instead we have to use
+<DL><DT><DD><TT><PRE>
+   t=0;
+   tod = callf(itimez,&amp;t) ;
+</PRE></TT></DL>
+Third, it is not possible to return floating-point function
+values from Fortran programs,  since the results are in the wrong
+register.  They must be explicitly passed back as arguments. Thus
+we can't say
+<DL><DT><DD><TT><PRE>
+   s  = callf(sin,&amp;x)
+</PRE></TT></DL>
+but rather
+<DL><DT><DD><TT><PRE>
+   callf(sin2,&amp;x,&amp;s)
+</PRE></TT></DL>
+where sin2 is defined as
+<DL><DT><DD><TT><PRE>
+   subroutine sin2(x,y)
+   y = sin(x)
+   return
+   end
+</PRE></TT></DL>
+Fourth,
+<TT>callf</TT>
+isn't blindingly efficient, since there's a lot of
+overhead converting calling sequences.  (Very short GMAP routines
+to interface with B programs can often be coded quite efficiently
+see [1], section 11.)
+<p>
+1273-bwk-pdp
+<p>
+B. W. KERNIGHAN
+<p>
+Attached
+<br>
+References
+<br>
+Appendix A,B,C,D
+<H4>References
+</H4>
+<p>
+<DL COMPACT>
+<DT>[1]<DD>
+Johnson, S. C.  A User's Reference to B on MH-TSS.   Bell
+Laboratories memorandum.
+<DT>[2]<DD>
+Canaday, R. H., Ritchie, D. M. Bell Laboratories BCPL. Bell
+Laboratories memorandum.
+</dl>
+<H4>Appendix A: B Compiler Diagnostics
+</H4>
+<p<p>
+Diagnostics consist of two letters, an optional name, and a
+source line number.  Because of the free form input, the source
+line number may be too high.
+<DL><DT><DD><TT><PRE>
+$)	-	{ } imbalance
+()	-	( ) imbalance
+*/	-	/**/ imbalance
+[]	-	[] imbalance
+&#62;c	-	case table overflow (fatal)
+&#62;e	-	expression stack overflow (fatal)
+&#62;i	-	label table overflow (fatal)
+&#62;s	-	symbol table overflow (fatal)
+ex	-	expression syntax error
+lv	-	address expected
+rd	name	name redeclaration - multiple definition
+sx	keyword	statement syntax error
+un	name	undefined name -  line number is last line
+		of function where definition is missing
+xx	-	syntax error in external definition
+</PRE></TT></DL>
+<H4>Appendix B:  Escape Sequences and Typography
+</H4>
+<p>
+Escape sequences are used in character constants and strings to
+obtain characters which for one reason or another are hard to
+represent directly.  They consist of '*-', where '-' is as below:
+<DL><DT><DD><TT><PRE>
+	*0 	null (ascii NUL = 000)
+	*e	end of string (ascii EOT = 004)
+	*(	{
+	*)	}
+	*t	tab
+	**	*
+	*'	'
+	*"	"
+	*n	newline
+</PRE></TT></DL>
+Users of non-ascii devices like model 33/35 Teletypes or IBM
+2741's should use a reasonably clever text-editor like QED to
+create special characters for B programs.
+<H4>Appendix C: printf for Formatted IO
+</H4>
+<p>
+printf(fmt,a1,a2,a3,.. . ,a10)
+<p>
+This function writes the arguments ai (from 0 to 10 of which may
+be present) onto the current output stream under control of the
+format string
+<TT>fmt</TT>.
+The format conversion is controlled by
+two-letter sequences of the form '%x' inside the string
+<TT>fmt</TT>,
+where x
+stands for one of the following:
+<DL><DT><DD><TT><PRE>
+c -- character data (ascii)
+d -- decimal number
+o -- octal number
+s -- character string
+</PRE></TT></DL>
+The characters in
+<TT>fmt</TT>
+which do not appear in one of these two
+character sequences are copied without change to the output.
+<br>&#32;<br>
+Thus the call
+<DL><DT><DD><TT><PRE>
+   printf("%d + %o is %s or %c*n", 1,-1,"zero",'0');
+</PRE></TT></DL>
+leads to the output line
+<DL><DT><DD><TT><PRE>
+   1 + 777777777777 is zero or 0
+</PRE></TT></DL>
+As another example, a permanent file whose name is in the string
+s can be created with size n blocks and general read permission
+by using
+<TT>printf</TT>
+together with the system output unit (-&#62;29) and
+the "filsys" subsystem:
+<DL><DT><DD><TT><PRE>
+   wr.unit = -1 ;
+   printf("filsys cf %s,b/%d/,r*n",s,n);
+</PRE></TT></DL>
+<H4>Appendix D: Binding Strength of Operators
+</H4>
+<br>&#32;<br>
+Operators are listed from highest to lowest binding strength;
+there is no order within groups.  Operators of equal strength
+bind left to right or right to left as indicated.
+<DL><DT><DD><TT><PRE>
+     ++  --  *  &amp;  -  ! ~ (unary) [RL]
+     *  /  % (binary)    [LR]
+     +  -  [LR]
+     &#62;&#62;  &#60;&#60; [LR]
+     &#62;  &#60;  &#60;=  &#62;=
+     ==   !=
+     &amp;   [LR]
+     ^   [LR]
+     |   [LR]
+     ?:  [RL]
+     =   =+  =-  etc. (all assignment operators) [RL]
+</PRE></TT></DL>
+<H4>Appendix E: Index
+</H4>
+<p>
+[omitted]
+<p>
+<A href=http://www.lucent.com/copyright.html>
+Copyright</A> &#169; 1996 Lucent Technologies Inc.  All rights reserved.
+</body></html>

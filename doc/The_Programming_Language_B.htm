@@ -1,0 +1,121 @@
+<html><head>
+<title>
+The Programming Language B
+</title></head>
+<body BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#330088" ALINK="#FF0044">
+<center>
+<H2>THE PROGRAMMING LANGUAGE B
+</H2>
+</center>
+<center><I>S. C. Johnson<br>
+B. W. Kernighan<br>
+Bell Laboratories<br>
+Murray Hill, New Jersey<br>
+</I></center>
+<center><H4>ABSTRACT</H4></center>
+<p>
+B is a computer language designed by D. M. Ritchie and K. L.
+Thompson, for primarily non-numeric applications such as system
+programming.  These typically involve complex logical
+decision-making, and processing of integers, characters, and bit strings.
+On the H6070 TSS system, B programs are usually much easier to
+write and understand than assembly language programs, and object
+code efficiency is almost as good.  Implementation of simple TSS
+subsystems is an especially appropriate use for B.
+This technical report contains a description of the MH-TSS
+(Honeywell 6070) version of B (by S. C. Johnson), and a tutorial
+introduction to most of the features of the language (by B. W.
+Kernighan).
+
+<p>
+<br>&#32;<br>
+<hr>
+<br>&#32;<br>
+DMR note, June 1997:
+<br>
+This WWW page is a rendition of
+<i>Bell Laboratories Computing Science Technical
+Report #8: The Programming Language B</i>, January, 1973.
+It was scanned using Adobe OCR software and
+the version here was edited by Dennis Ritchie.
+It is divided into two sections, each in several formats:
+<ul>
+<li><a href="/cm/cs/who/dmr/btut.html">A Tutorial Introduction
+to the Language B</a>,
+by Brian Kernighan, is browsable HTML; also available as
+<a href="btut.ps">PostScript</a> or
+<a href="btut.pdf">PDF</a>.
+
+<li><a href="bref.html">User's Reference to B on MH-TSS</a>,
+by Steve Johnson, is browsable HTML; also available in
+<a href="bref.ps">PostScript</a> or <a href="bref.pdf">PDF</a>.
+</ul>
+<p>
+For scholars, the page images are also available:
+<ul>
+<li><a href="btut.pdf">PDF Tutorial</a> is a scanned PDF image of
+the tutorial.   Caution: 1.2MB in size.
+<li><a href="bref.pdf">PDF Reference</a> is a scanned PDF image of
+the reference.   Caution: 1.4MB in size.
+</ul>
+
+<p>
+The document seems to exist only on (partially) original
+paper printed on a Teletype model 37 terminal.  It uses underlining
+for emphasis.  You need to look at the PDF scans to verify any
+typos I might have introduced in cleaning up the OCR, which was
+pretty good except where there was underlining or double-quote
+characters; they tended to merge into the line above.  I
+avoided the urge to redact the original except for a few
+obvious mistakes, in particular some missing semicolons
+in the syntax for some of the commands.
+<p>
+When this CSTR was issued, which was probably
+some months after the papers were written,
+the use of B was growing
+on the local Honeywell GCOS system.
+Its time-sharing facility was
+called MH-TSS here, and it was then the main computation
+facility at Bell Labs in Murray Hill, NJ.
+By this time, use of B in the early Unix system was already pretty
+much at an end; early C had already taken over
+(see <A href="/cm/cs/who/dmr/chist.html">The Development of the
+C Language</a>).  In fact, by September 1973, the operating system
+had already been translated into C and most of the B utilities
+converted.
+<p>
+The memos shown here were based on an earlier document,
+<a href="kbman.html"><i>User's Reference to B</i></a>,
+by Ken Thompson.
+The Unix dialect of B closely followed the Honeywell version
+described here--the compiler front-ends were the same,
+but of course the Unix system calls were present, and the
+GCOS-specific I/O stuff absent.  The basic library must
+have looked very similar.
+
+<p>
+Indeed, there were never very many B programs on early Unix.
+The compiler itself was written in B, and a few of the utilities,
+for example the first <i>/etc/glob</i>, which expanded wild-card
+characters for the shell.
+This is because no compiler to machine code for the PDP-7 or PDP-11 was
+ever built; the Unix B compilers produced interpreted, threaded
+code that wasn't efficient enough to write a whole system in.
+<p>
+On the other hand, B, with a real compiler, flourished in a modest way on the Honeywell
+machines, as indicated by this CSTR.
+Moreover, it had direct use and even progeny elsewhere, especially
+at the University of Waterloo in Ontario.
+It apparently lives on today: see
+<a href="http://www.thinkage.ca/english/gcos/product-uwtools.shtml">Thinkage Ltd. UW Tools Package</a>,
+for example.
+<p>
+A final note of possible historical interest or amusement:
+so far as Brian and I can remember, the Tutorial contains the
+first instance of a "Hello, world" program.
+</p>
+<A href=http://www.lucent.com/copyright.html>
+Copyright</A> &#169; 1997 Lucent Technologies Inc.  All rights reserved.
+<p>
+Last fiddled 29 May 2000, adding PDF distillations of the OCR.
+</body></html>
