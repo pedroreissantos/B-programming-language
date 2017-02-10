@@ -1,10 +1,10 @@
 COMP=../blc
 EXT=.b
-LDLIBS=../run/librun.a
+LDLIBS=../librun.a
 .SUFFIXES: $(EXT) .brg .asm
 NASM=nasm -felf32
 #NASM=as -o $@
-#LD=ld -melf_i386
+#LD=ld -melf_i386 # 32-bit binaries in a 64-bit system
 LD=ld
 
 SRC= 1.b 2.b 3.b ack.b bubble.b convert.b div.b \
@@ -17,6 +17,18 @@ SRC= 1.b 2.b 3.b ack.b bubble.b convert.b div.b \
 EXE=$(SRC:%.b=%)
 
 all: $(EXE)
+
+arm:
+	$(MAKE) $(MFLAGS) NASM="as -o $@"
+
+i386:
+	$(MAKE) $(MFLAGS) LD="ld --melf_i386" NASM="nasm -felf32"
+
+linux32:
+	$(MAKE) $(MFLAGS) NASM="nasm -felf32"
+
+linux64:
+	$(MAKE) $(MFLAGS) NASM="nasm -felf64"
 
 iter: iter.o fact.o
 	$(LD) -o $@ $^ $(LDLIBS)

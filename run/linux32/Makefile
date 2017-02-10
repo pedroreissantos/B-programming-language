@@ -1,9 +1,10 @@
+DEST=../..
 LIB=run
 OS=$(ELF32)
 SYS=elf32
-CC=gcc -m32 # para gerar elf32 em máquinas de 64 bits
-LD=ld -melf_i386 # para gerar elf32 em máquinas de 64 bits
-CFLAGS=-g -Dunderscore # -fno-stack-protector # quando __stack_chk_fail em Ubunto
+CC=gcc -m32 # produce elf32 in 64 bit machines
+LD=ld -melf_i386 # produce elf32 in 64 bit machines
+CFLAGS=-g -Dunderscore # -fno-stack-protector # when __stack_chk_fail in Ubunto
 BOOT=$(LIB).o # bootstrap runtime for a C compiler
 RUNTIME=lib$(LIB).a # stand-alone runtime
 
@@ -14,6 +15,7 @@ WIN32=win.obj lib.obj
 NASM=nasm -f$(SYS)
 
 all: $(RUNTIME) $(BOOT)
+	cp $^ $(DEST)
 
 $(RUNTIME): dbl.o $(OS)
 	ar crl $@ $?

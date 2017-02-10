@@ -1,8 +1,10 @@
+ARCH=#-DpfARM
+DEST=..
 EXE=blc
 EXT=.b
 .SUFFIXES: $(EXT) .brg .asm
 CC=gcc
-CFLAGS=-g -DYYDEBUG -I"$(INC)" # -DpfARM
+CFLAGS=-g -DYYDEBUG -I"$(INC)" $(ARCH)
 LEX=flex
 LFLAGS=-l # -ld for debug
 YACC=byacc
@@ -11,9 +13,12 @@ BURG=pburg
 BFLAGS=-T
 LDLIBS=$(LIB)
 
-INC=./lib
+INC=../lib
 LIB=$(INC)/libutil.a
 OBJ=scan.o gram.o code.o
+
+all: $(EXE)
+	cp $^ $(DEST)
 
 $(EXE): $(OBJ)
 	$(MAKE) $(MFLAGS) -C $(INC)

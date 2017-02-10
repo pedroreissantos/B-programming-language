@@ -1,3 +1,4 @@
+DEST=../..
 LIB=run
 OS=$(ELF64)
 SYS=elf64
@@ -12,6 +13,7 @@ WIN32=win.obj lib.obj
 NASM=nasm -f$(SYS)
 
 all: $(RUNTIME) $(BOOT)
+	cp $^ $(DEST)
 
 $(RUNTIME): dbl.o $(OS)
 	ar crl $@ $?

@@ -1,8 +1,10 @@
+DEST=../..
 LDLIBS=librun.a
 LDOBJ=run.o
 OBJ=arm.o lib.o sys.o stk.o dbl.o soft.o wrap.o char.o
 
 all: $(LDLIBS) $(LDOBJ)
+	cp $^ $(DEST)
 
 $(LDLIBS): $(OBJ)
 	ar crl $@ $?

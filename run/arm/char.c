@@ -2,6 +2,7 @@
 #define Char _char
 #define lchar _lchar
 #define putchar _putchar
+#define prints _prints
 #endif
 
 int Char(int *vec, int pos)
@@ -11,7 +12,7 @@ int Char(int *vec, int pos)
 
 int lchar(int *vec, int pos, int val)
 {
-  return vec[pos/4] = (vec[pos/4] & ~(255 << (pos % 4 * 8))) | ((val & 255) << (pos % 4 * 8));
+  return vec[pos/4] = (vec[pos/4] & ~(255 << (pos % 4 * 8))) | ((val & 255) << (pos % 4 * 8)), val;
 }
 
 void prints(char*);
