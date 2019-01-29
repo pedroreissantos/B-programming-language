@@ -1,7 +1,8 @@
 DEST=../..
 LDLIBS=librun.a
 LDOBJ=run.o
-OBJ=arm.o lib.o sys.o stk.o dbl.o soft.o wrap.o char.o
+SOFT=soft.o # use 'make SOFT=' for hard-float processors, e.g. raspberry-pi
+OBJ=arm.o lib.o sys.o stk.o dbl.o $(SOFT) wrap.o char.o
 
 all: $(LDLIBS) $(LDOBJ)
 	cp $^ $(DEST)

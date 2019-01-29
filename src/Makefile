@@ -40,4 +40,4 @@ code.o: gram.o
 	ld -melf_i386 out.o run/librun.a
 
 clean:
-	rm -f $(EXE) $(OBJ) a.out *~ y.output *.o *.asm
+	rm -f $(EXE) $(OBJ) a.out *~ y.* *.o *.asm
