@@ -7,14 +7,14 @@ main()
   b = getint();
   c = getint();
   if (a < 1 | b < 1 | c < 1)
-    putstr("As dimensoes dos lados do triangulo devem ser todas positivas*n");
+    putstr("As dimensÃµes dos lados do triÃ¢ngulo devem ser todas positivas*n");
   else if (a + b <= c | a + c <= b | c + b <= a)
-    putstr("Não é triângulo*n");
+    putstr("NÃ£o Ã© triÃ¢ngulo*n");
   else if (a == b & b == c)
-    putstr("O triângulo é equilátero*n");
+    putstr("O triÃ¢ngulo Ã© equilÃ¡tero*n");
   else if (a == b | b == c | c == a)
-    putstr("O triângulo é isósceles*n");
+    putstr("O triÃ¢ngulo Ã© isÃ³sceles*n");
   else
-    putstr("O triângulo é escaleno*n");
+    putstr("O triÃ¢ngulo Ã© escaleno*n");
   return (0);
 }

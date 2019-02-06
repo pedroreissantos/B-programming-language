@@ -9,7 +9,7 @@ main()
   extrn putstr(), getint(), putint();
   auto n;
 
-  putstr("Qual o termo da série de Fibonacci a calcular: ");
+  putstr("Qual o termo da sÃ©rie de Fibonacci a calcular: ");
   n = getint();
   putint(fib(n));
   putstr("*n");

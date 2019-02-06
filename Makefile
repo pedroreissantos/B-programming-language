@@ -1,9 +1,13 @@
 all:
-	@echo "run 'make platform' where platform is: arm, linux32, linux64"
+	@echo "run 'make platform' where platform is: arm, armhf, linux32, linux64"
 
 arm: clean
 	$(MAKE) $(MFLAGS) -C src ARCH=-DpfARM
 	$(MAKE) $(MFLAGS) -C run/arm
+
+armhf: clean
+	$(MAKE) $(MFLAGS) -C src ARCH=-DpfARM
+	$(MAKE) $(MFLAGS) -C run/arm SOFT=
 
 linux32: clean
 	$(MAKE) $(MFLAGS) -C src ARCH=

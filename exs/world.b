@@ -1,5 +1,5 @@
 main() {
   extrn printf();
-  printf("olé touro!*n");
+  printf("olÃ© touro!*n");
   return (0);
 }
