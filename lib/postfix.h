@@ -128,6 +128,158 @@
 #define pfST32 pfSTORE
 #define pfULD32 pfLOAD
 
+#define pfASM "ASM %s\n"
+#define pfBB "BB\n"
+
+#elif defined(pfNUM)
+
+#define pfCOMM	1
+#define pfNOP	2
+#define pfIMM	3
+#define pfADD	4
+#define pfSUB	5
+#define pfMUL	6
+#define pfDIV	7
+#define pfMOD	8
+#define pfNEG	9
+#define pfINCR	10
+#define pfDECR	11
+#define pfGT	12
+#define pfGE	13
+#define pfLT	14
+#define pfLE	15
+#define pfEQ	16
+#define pfNE	17
+#define pfAND	18
+#define pfOR	19
+#define pfXOR	20
+#define pfNOT	21
+#define pfROTL	22
+#define pfROTR	23
+#define pfSHTL	24
+#define pfSHTRU	25
+#define pfSHTRS	26
+#define pfLOCAL	27
+#define pfADDR	28
+#define pfLOCV	29
+#define pfADDRV	30
+#define pfLOCA	31
+#define pfADDRA	32
+#define pfLOAD	33
+#define pfSTORE	34
+#define pfLDCHR	35
+#define pfSTCHR	36
+#define pfLD16	37
+#define pfST16	38
+#define pfENTER	39
+#define pfSTART	40
+#define pfALLOC	41
+#define pfLEAVE	42
+#define pfTRASH	43
+#define pfCALL	44
+#define pfRET	45
+#define pfRETN	46
+#define pfBRANCH	47
+#define pfLEAP	48
+#define pfJMP	49
+#define pfJZ	50
+#define pfJNZ	51
+#define pfCOPY	52
+#define pfSWAP	53
+#define pfSP	54
+#define pfPUSH	55
+#define pfPOP	56
+#define pfI2D	57
+#define pfF2D	58
+#define pfD2I	59
+#define pfD2F	60
+#define pfDADD	61
+#define pfDSUB	62
+#define pfDMUL	63
+#define pfDDIV	64
+#define pfDCMP	65
+#define pfDNEG	66
+#define pfLOAD2	67
+#define pfSTORE2	68
+#define pfCOPY2	69
+#define pfDPUSH	70
+#define pfDPOP	71
+#define pfNIL	72
+#define pfBEGIN	73
+#define pfEND	74
+#define pfTEXT	75
+#define pfRODATA	76
+#define pfDATA	77
+#define pfBSS	78
+#define pfALIGN	79
+#define pfEXTRN	80
+#define pfCOMMON	81
+#define pfGLOBL	82
+#define pfLABEL	83
+#define pfINTEGER	84
+#define pfSHORT	85
+#define pfLONG	86
+#define pfSTR	87
+#define pfCHAR	88
+#define pfID	89
+#define pfBYTE	90
+#define pfFLOAT	91
+#define pfDOUBLE	92
+#define pfULDCHR	93
+#define pfULD16	94
+#define pfUDIV	95
+#define pfUMOD	96
+#define pfUGT	97
+#define pfUGE	98
+#define pfULT	99
+#define pfULE	100
+#define pfJEQ	101
+#define pfJNE	102
+#define pfJGT	103
+#define pfJGE	104
+#define pfJLT	105
+#define pfJLE	106
+#define pfJUGT	107
+#define pfJUGE	108
+#define pfJULT	109
+#define pfJULE	110
+
+#define pfLD64	111
+#define pfST64	112
+#define pfULD64	113
+#define pfLD32	114
+#define pfST32	115
+#define pfULD32	116
+
+static char *pfNAMES[] = { 0, "comm", "nop", "imm", "add", "sub", "mul", "div",
+	"mod", "neg", "incr", "decr", "gt", "ge", "lt", "le", "eq", "ne",
+	"and", "or", "xor", "not", "rotl", "rotr", "shtl", "shtru", "shtrs",
+	"local", "addr", "locv", "addrv", "loca", "addra", "load", "store",
+	"ldchr", "stchr", "ld16", "st16", "enter", "start", "alloc", "leave",
+	"trash", "call", "ret", "retn", "branch", "leap", "jmp", "jz", "jnz",
+	"copy", "swap", "sp", "push", "pop", "i2d", "f2d", "d2i", "d2f",
+	"dadd", "dsub", "dmul", "ddiv", "dcmp", "dneg", "load2", "store2",
+	"copy2", "dpush", "dpop", "nil", "begin", "end", "text", "rodata",
+	"data", "bss", "align", "extrn", "common", "globl", "label",
+	"integer", "short", "long", "str", "char", "id", "byte", "float",
+	"double", "uldchr", "uld16", "udiv", "umod", "ugt", "uge", "ult",
+	"ule", "jeq", "jne", "jgt", "jge", "jlt", "jle", "jugt", "juge",
+	"jult", "jule", "ld64", "st64", "uld64", "ld32", "st32", "uld32",
+	0, "asm", "BB", "func", "obj"
+};
+
+#define pfASM		118
+#define pfBB		119
+
+#define pfR0	0x40
+#define pfR1	0x20
+#define pfR2	0x10
+#define pfRreg	0x0
+#define pfRint	0x1
+#define pfRstr	0x2
+#define pfRdbl	0x3
+#define pfRlng	0x4
+
 #elif defined(pfARM)
 
 #define pfCOMM "@ COMM %s\n"
@@ -247,6 +399,9 @@
 #define pfLD32 pfLOAD
 #define pfST32 pfSTORE
 #define pfULD32 pfLOAD
+
+#define pfASM "@ ASM\n\t%s\n"
+#define pfBB "@ BB\n"
 
 #define pfARG1	"; ARG1\n\tldr\tr0, [sp]\n"
 #define pfARG2	"; ARG2\n\tldr\tr1, [sp,#4]\n"
@@ -375,6 +530,9 @@
 #define pfLD64 pfLOAD
 #define pfST64 pfSTORE
 #define pfULD64 pfLOAD
+
+#define pfASM "; ASM\n\t%s\n"
+#define pfBB "; BB\n"
 
 #define pfARG1	"; ARG1\n\tmov\trdi, [rsp+0]\n"
 #define pfARG2	"; ARG2\n\tmov\trsi, [rsp+8]\n"
@@ -510,6 +668,9 @@
 #define pfST32 pfSTORE
 #define pfULD32 pfLOAD
 
+#define pfASM "; ASM\n\t%s\n"
+#define pfBB "; BB\n"
+
 #else
 
 #define pfCOMM "; COMM %s\n"
@@ -630,6 +791,9 @@
 #define pfST32 pfSTORE
 #define pfULD32 pfLOAD
 
+#define pfASM "; ASM\n\t%s\n"
+#define pfBB "; BB\n"
+
 #endif
 
 /* Used as the 2nd argument of pfGLOBL */
@@ -637,6 +801,9 @@
 #ifdef _WIN32
 #define pfFUNC	""	/* no symbol types in win32-PE */
 #define pfOBJ	""	/* no symbol types in win32-PE */
+#elif defined(pfNUM)
+#define pfFUNC	120
+#define pfOBJ	121
 #elif defined(pfARM)
 #define pfFUNC	" @function"	/* should declare in .type */
 #define pfOBJ	""

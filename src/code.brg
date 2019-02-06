@@ -37,6 +37,7 @@ static char *mkfunc(char *s) {
 static long swif(Node *p, float dens);
 #define TRACE
 static void yytrace(NODEPTR_TYPE p, int eruleno, int cost, int bestcost);
+static int doasm(Node *p) { return strcmp(LEFT_CHILD(LEFT_CHILD(p))->value.s, "asm") ? MAX_COST : 0 ; }
 %}
 %include "y.tab.h"
 %%
@@ -54,6 +55,7 @@ stmt:	expr		1 { fprintf(outfp, pfTRASH, pfWORD); }
 stmt:	RETURN(expr)	1 { fprintf(outfp, pfPOP pfLEAVE pfRET); }
 stmt:	END
 
+stmt:	CALL(LOAD(ADDR),ARG(STRING,END))	doasm { fprintf(outfp, "%s\n", LEFT_CHILD(RIGHT_CHILD(p))->value.s); }
 expr:	CALL(LOAD(ADDR),args)	1 { fprintf(outfp, pfCALL pfTRASH pfPUSH, mkfunc(LEFT_CHILD(LEFT_CHILD(p))->value.s), (int)(pfWORD*(RIGHT_CHILD(p)->place))); }
 args:	ARG(arg,args)	  { p->place =  ((LEFT_CHILD(p)->place) + (RIGHT_CHILD(p)->place)); }
 args:	END		  { p->place = 0; }
