@@ -4,7 +4,7 @@ OS=$(ELF32)
 SYS=elf32
 CC=gcc -m32 # produce elf32 in 64 bit machines
 LD=ld -melf_i386 # produce elf32 in 64 bit machines
-CFLAGS=-g -Dunderscore # -fno-stack-protector # when __stack_chk_fail in Ubunto
+CFLAGS=-g -Dunderscore -fno-stack-protector # when __stack_chk_fail in Ubunto
 BOOT=$(LIB).o # bootstrap runtime for a C compiler
 RUNTIME=lib$(LIB).a # stand-alone runtime
 

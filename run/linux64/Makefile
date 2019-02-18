@@ -2,7 +2,7 @@ DEST=../..
 LIB=run
 OS=$(ELF64)
 SYS=elf64
-CFLAGS=-g -Dunderscore # -fno-stack-protector # quando __stack_chk_fail em Ubunto
+CFLAGS=-g -Dunderscore -fno-stack-protector # quando __stack_chk_fail em Ubunto
 BOOT=$(LIB).o # bootstrap runtime for a C compiler
 RUNTIME=lib$(LIB).a # stand-alone runtime
 

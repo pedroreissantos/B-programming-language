@@ -4,8 +4,8 @@ LDLIBS=../librun.a
 .SUFFIXES: $(EXT) .brg .asm
 NASM=nasm -felf32
 #NASM=as -o $@
-#LD=ld -melf_i386 # 32-bit binaries in a 64-bit system
-LD=ld
+LD=ld -melf_i386 # 32-bit binaries in a 64-bit system
+#LD=ld
 
 SRC= 1.b 2.b 3.b ack.b bubble.b convert.b div.b \
 	empty.b fib.b fibiter.b gcd.b \
