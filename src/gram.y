@@ -89,7 +89,7 @@ name	: NAME				{ $$ = strNode(NAME, $1); }
 	;
 
 cnames	: name vc			{ $$ = binNode(AUTO, nilNode(END), $1); IDnew($2->info, $1->value.s, pos -= 4 * dim($2)); }
-	| cnames ',' name vc		{ $$ = binNode(AUTO, $1, $3); IDnew($3->info, $3->value.s, pos -= 4 * dim($4)); }
+	| cnames ',' name vc		{ $$ = binNode(AUTO, $1, $3); IDnew($4->info, $3->value.s, pos -= 4 * dim($4)); }
 	;
 
 enames	: name				{ $$ = binNode(EXTRN, nilNode(END), $1); IDnew(0, $1->value.s, 0); $1->info = 0; }
