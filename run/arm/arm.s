@@ -8,7 +8,7 @@ prints:
         push {r0}
 	bl	_strlen
 	mov	r2, r0
-	mov r0, $0 @ stdout
+	mov r0, $1 @ stdout
         pop {r1}
         mov r7, $4 @ write
         swi 0
