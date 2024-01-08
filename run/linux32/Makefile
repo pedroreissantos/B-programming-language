@@ -18,7 +18,7 @@ all: $(RUNTIME) $(BOOT)
 	cp $^ $(DEST)
 
 $(RUNTIME): dbl.o $(OS)
-	ar crl $@ $?
+	ar crv $@ $?
 
 $(BOOT): dbl.o $(OS)
 	$(LD) -r -o  $@ $^

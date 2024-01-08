@@ -8,7 +8,7 @@ all: $(LDLIBS) $(LDOBJ)
 	cp $^ $(DEST)
 
 $(LDLIBS): $(OBJ)
-	ar crl $@ $?
+	ar crv $@ $?
 
 $(LDOBJ): $(OBJ)
 	ld -r -o $@ $^
